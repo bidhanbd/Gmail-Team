@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Gmail Team Pro</title>
+<style>
+body {margin:0;font-family:Arial;background:linear-gradient(135deg,#74b9ff,#a29bfe);}
+.container {max-width:1100px;margin:auto;padding:20px;}
+h1,h2,h3,h4,p{color:white;margin:4px;}
+.card {background: rgba(255,255,255,0.15);backdrop-filter: blur(12px);border-radius: 15px;padding: 20px;margin: 15px 0;}
+.flex {display:flex;flex-wrap:wrap;gap:10px;}
+.box {flex:1;min-width:200px;background: rgba(255,255,255,0.2);padding:10px;border-radius:10px;text-align:center;}
+button {padding:6px 10px;border:none;border-radius:5px;background:#0984e3;color:white;cursor:pointer;}
+input {padding:4px 6px;border-radius:4px;border:none;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div id="loginBox" class="card">
+<h2>Login</h2>
+<input id="username" placeholder="Username"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
+<p id="msg"></p>
+</div>
+
+<div id="dashboard" class="hidden">
+<h1>Gmail Team Pro</h1>
+
+<div class="card">
+<h2>Summary</h2>
+<div class="flex" id="summary"></div>
+</div>
+
+<div class="card">
+<h2>Payment System</h2>
+<div class="flex">
+<div class="box">
+<h3>Seller</h3>
+<div id="sellerBox"></div>
+</div>
+<div class="box">
+<h3>Member</h3>
+<div id="memberBox"></div>
+</div>
+<div class="box">
+<h3>Total Payment</h3>
+<div id="teamBox"></div>
+</div>
+</div>
+</div>
+
+<div id="logsCard" class="card hidden">
+<h2>Activity Logs</h2>
+<div id="logs"></div>
+</div>
+</div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVp4W_Prz2xk1UwvwDxI6URDIBxWhAB5VzeIGvNjTffV7CV8zKUUMjSjN2KJpTCZ0a/exec";
+
+let user="", role="";
+
+async function login(){
+  const username=document.getElementById("username").value;
+  const password=document.getElementById("password").value;
+
+  if(username==="superadmin" && password==="super@2024"){role="superadmin";}
+  else if(username==="admin" && password==="admin@555"){role="admin";}
+  else{role="member";}
+
+  user=username;
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  loadData();
+  setInterval(loadData,5000);
+}
+
+function getRate(seller){return Number(localStorage.getItem("rate_"+seller))||0;}
+function updateRate(seller,rate){localStorage.setItem("rate_"+seller,rate); loadData();}
+
+async function loadData(){
+  const res=await fetch(`${SCRIPT_URL}?action=dashboard&user=${user}&role=${role}`);
+  const data=await res.json();
+  renderSummary(data);
+  renderPayment(data);
+  if(role==="superadmin") document.getElementById("logsCard").classList.remove("hidden");
+}
+
+function renderSummary(data){
+  const div=document.getElementById("summary");
+  let total=0, good=0, problem=0, payment=0;
+  Object.values(data.statusCount).forEach(v=> total+=v);
+  good = data.statusCount.ok||0;
+  problem = total-good;
+  Object.values(data.memberGood).forEach(v=> payment+=v);
+  div.innerHTML=`<div class="box">Total: ${total}</div>
+                 <div class="box">Good: ${good}</div>
+                 <div class="box">Problem: ${problem}</div>
+                 <div class="box">Payment: ${payment} BDT</div>`;
+}
+
+function renderPayment(data){
+  const sellerDiv=document.getElementById("sellerBox"); sellerDiv.innerHTML=""; let totalPayment=0;
+  Object.keys(data.sellerGood).forEach(s=>{
+    const goodCount=data.sellerGood[s]||0;
+    const problemCount=data.sellerProblem[s]||0;
+    const rate=getRate(s);
+    const payment=goodCount*rate; totalPayment+=payment;
+    sellerDiv.innerHTML+=`<div style="border:1px solid rgba(255,255,255,0.3);padding:10px;margin:5px;border-radius:10px;background:rgba(255,255,255,0.1)">
+      <h4>${s}</h4>
+      <p>Good: ${goodCount} | Problem: ${problemCount}</p>
+      <p>Payment: ${payment} BDT</p>
+      ${role!=="member"?`<input type="number" value="${rate}" placeholder="Rate" onchange="updateRate('${s}',this.value)">`:""}
+      ${role!=="member"?`<button onclick="exportData('seller','${s}')">Export</button>`:""}
+    </div>`;
+  });
+
+  const memberDiv=document.getElementById("memberBox"); memberDiv.innerHTML="";
+  Object.keys(data.memberGood).forEach(m=>{
+    const good=data.memberGood[m]||0; const problem=data.memberProblem[m]||0;
+    let payment=0; Object.keys(data.sellerGood).forEach(s=>{payment+=getRate(s);});
+    memberDiv.innerHTML+=`<div style="border:1px solid rgba(255,255,255,0.2);padding:8px;margin:4px;border-radius:8px;background:rgba(255,255,255,0.05)">
+      <h4>${m}</h4><p>Good: ${good} | Problem: ${problem}</p><p>Payment: ${payment} BDT</p></div>`;
+  });
+
+  document.getElementById("teamBox").innerHTML=`<h2>${totalPayment} BDT</h2>`;
+}
+
+function exportData(type,name){
+  window.open(`${SCRIPT_URL}?action=export&filter=${type}&name=${name}&role=${role}&user=${user}`);
+}
+</script>
+</body>
+</html>
