@@ -19,7 +19,6 @@
       --cyan:#45f3ff;
       --green:#2ee887;
       --red:#ff5f7d;
-      --gold:#ffc75f;
       --shadow:0 24px 70px rgba(0,0,0,.38);
       --radius:24px;
     }
@@ -87,7 +86,7 @@
       background:var(--card);
       border:1px solid var(--stroke);
       border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      box-shadow:0 24px 70px rgba(0,0,0,.38);
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
       position:relative;
@@ -138,7 +137,10 @@
     }
 
     .fire-ring.active::after{opacity:1}
-    @keyframes ringSpin{to{transform:rotate(360deg)}}
+
+    @keyframes ringSpin{
+      to{transform:rotate(360deg)}
+    }
 
     .btn{
       border:none;
@@ -181,7 +183,9 @@
     }
 
     .input::placeholder{color:#8390b6}
+
     .page{animation:fadeIn .45s ease}
+
     @keyframes fadeIn{
       from{opacity:0;transform:translateY(10px)}
       to{opacity:1;transform:translateY(0)}
@@ -627,6 +631,7 @@
     .kv-row strong{
       font-size:14px;
       font-weight:800;
+      text-align:right;
     }
 
     .panel{
@@ -762,19 +767,21 @@
             <div class="login-badge">✦ Animated Secure Entry</div>
             <div class="login-title">Gmail Team Pro</div>
             <div class="login-sub">
-              Team member হলে নিজের নামটাই password.
+              Team member name is his/her password.
             </div>
           </div>
         </div>
 
         <div class="glass animated-card login-right fire-ring clickable-card">
           <div class="panel-title">Enter Access Password</div>
-          <div class="panel-sub">একটাই login page সবার জন্য</div>
+          <div class="panel-sub">Universal Login Here</div>
 
           <div class="login-form">
             <input id="loginPassword" class="input" type="password" placeholder="Enter password">
             <button class="btn primary" id="loginBtn">Login</button>
-            
+            <div class="small-note">
+              Enter your access password
+            </div>
           </div>
 
           <div id="loginMessage" class="notice">Loading members...</div>
@@ -860,7 +867,7 @@
           </div>
           <div class="stat-value" id="problemMails">0</div>
           <div class="stat-bottom">
-            <span>ok ছাড়া সব</span>
+            <span>ok ছাড়া all</span>
             <span id="problemRate">0%</span>
           </div>
         </div>
@@ -963,7 +970,7 @@
                 <span>Member Rate</span>
                 <strong id="teamRateView">0</strong>
               </div>
-              <div class="kv-row">
+              <div class="kv-row" id="sellerPaymentRow">
                 <span>Total Seller Payment</span>
                 <strong id="sellerPaymentView">0</strong>
               </div>
@@ -993,6 +1000,34 @@
             </div>
           </div>
 
+          <div id="historySection" class="glass animated-card section fire-ring clickable-card hidden">
+            <div class="section-head">
+              <div>
+                <h3>Lifetime Stats</h3>
+                <p>Paid history after reset</p>
+              </div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-row">
+                <span>Total Good (All Time)</span>
+                <strong id="historyGood">0</strong>
+              </div>
+              <div class="kv-row">
+                <span>Total Payment (All Time)</span>
+                <strong id="historyPayment">0</strong>
+              </div>
+              <div class="kv-row">
+                <span>Last Reset Date</span>
+                <strong id="historyDate">-</strong>
+              </div>
+            </div>
+
+            <div class="panel-actions" style="margin-top:14px">
+              <button id="resetPaymentBtn" class="btn red" onclick="resetMemberPayment()">Reset Payment</button>
+            </div>
+          </div>
+
           <div class="glass animated-card section fire-ring clickable-card">
             <div class="section-head">
               <div>
@@ -1007,27 +1042,7 @@
             <div class="section-head">
               <div>
                 <h3>Rules & Access</h3>
-                <p>Role-based system notes</p>
-              </div>
-            </div>
-
-            <div class="rules-grid">
-              <div class="rule-box">
-                <strong>Status Rule</strong>
-                <span><b>ok</b> good count হবে। ok ছাড়া সব status problem count হবে।</span>
-              </div>
-              <div class="rule-box">
-                <strong>Member Rule</strong>
-                <span>Team Member column-এর inputted name-ই member name হিসেবে ধরা হবে।</span>
-              </div>
-              <div class="rule-box">
-                <strong>Payment Rule</strong>
-                <span>Member payment = good × member fixed rate. Seller payment = good × seller rate.</span>
-              </div>
-              <div class="rule-box">
-                <strong>Access Rule</strong>
-                <span>Team member শুধু নিজের data. Admin full overview. Super admin full access.</span>
-              </div>
+                
             </div>
           </div>
         </div>
@@ -1036,7 +1051,8 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwdmSLfhzhD1KL3zNRFn7EJ8zdQNNy_dgTSx89XZkkjTWl8mbTtzcRfdgQdG2eze8E/exec?action=dashboard";
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwdmSLfhzhD1KL3zNRFn7EJ8zdQNNy_dgTSx89XZkkjTWl8mbTtzcRfdgQdG2eze8E/exec";
+    const API_URL = API_BASE + "?action=dashboard";
     const ADMIN_PASSWORD = "admin@555";
     const SUPER_ADMIN_PASSWORD = "super@2024";
 
@@ -1060,7 +1076,12 @@
       teamRate: 0,
       sellerRates: {},
       problemBreakdown: [],
-      memberNames: []
+      memberNames: [],
+      history: {
+        totalGood: 0,
+        totalPayment: 0,
+        lastResetDate: ""
+      }
     };
 
     function formatNumber(num){ return Number(num || 0).toLocaleString(); }
@@ -1291,19 +1312,97 @@
       }).join("");
     }
 
+    async function loadMemberHistory(memberName) {
+      try {
+        const url = `${API_BASE}?action=history&member=${encodeURIComponent(memberName)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.success) return;
+
+        state.history.totalGood = Number(data.totalGood || 0);
+        state.history.totalPayment = Number(data.totalPayment || 0);
+        state.history.lastResetDate = data.lastResetDate || "";
+
+        const section = document.getElementById("historySection");
+        if (section) section.classList.remove("hidden");
+
+        document.getElementById("historyGood").textContent = formatNumber(state.history.totalGood);
+        document.getElementById("historyPayment").textContent = formatCurrency(state.history.totalPayment);
+        document.getElementById("historyDate").textContent = state.history.lastResetDate
+          ? new Date(state.history.lastResetDate).toLocaleString()
+          : "-";
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function resetMemberPayment() {
+      if (state.role !== "member" || !state.memberName) return;
+
+      const currentMember = state.members.find(
+        m => String(m.name || "").toLowerCase() === String(state.memberName || "").toLowerCase()
+      );
+
+      const currentGood = Number(currentMember?.good || 0);
+      const currentPayment = Number(currentMember?.payment || 0);
+
+      if (!currentGood && !currentPayment) {
+        alert("Reset করার মতো current data নাই");
+        return;
+      }
+
+      const ok = confirm("Payment complete হলে reset হবে. Continue?");
+      if (!ok) return;
+
+      const form = new URLSearchParams();
+      form.append("action", "reset");
+      form.append("member", state.memberName);
+      form.append("good", currentGood);
+      form.append("payment", currentPayment);
+
+      try {
+        const res = await fetch(API_BASE, {
+          method: "POST",
+          body: form
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || "Reset failed");
+          return;
+        }
+
+        alert("Reset done");
+        await loadMemberHistory(state.memberName);
+      } catch (err) {
+        console.error(err);
+        alert("Reset failed");
+      }
+    }
+
     function renderRulesByRole() {
       const rateSection = document.getElementById("rateSection");
       const rulesSection = document.getElementById("rulesSection");
+      const sellerPaymentRow = document.getElementById("sellerPaymentRow");
+      const historySection = document.getElementById("historySection");
 
       if (state.role === "member") {
         rateSection.classList.add("hidden");
         rulesSection.classList.add("hidden");
+        sellerPaymentRow.style.display = "none";
+        historySection.classList.remove("hidden");
       } else if (state.role === "admin") {
         rateSection.classList.remove("hidden");
         rulesSection.classList.add("hidden");
+        sellerPaymentRow.style.display = "flex";
+        historySection.classList.add("hidden");
       } else {
         rateSection.classList.remove("hidden");
         rulesSection.classList.remove("hidden");
+        sellerPaymentRow.style.display = "flex";
+        historySection.classList.add("hidden");
       }
     }
 
@@ -1341,8 +1440,12 @@
 
         const memberProblemBreakdown = aggregateProblemFromRows(memberRecent);
         renderList("problemBreakdownList", memberProblemBreakdown, "problem");
+
+        loadMemberHistory(state.memberName);
         return;
       }
+
+      document.getElementById("historySection").classList.add("hidden");
 
       if (state.role === "admin") {
         document.getElementById("topRoleLabel").textContent = "Admin Page • Overview Access";
