@@ -380,7 +380,8 @@
     }
 
     .chart-box{
-      height:320px;
+      height:210px;
+      max-height:210px;
     }
 
     .stats-grid{
@@ -1133,6 +1134,21 @@
       });
     }
 
+    function bindHistoryClicks() {
+      document.addEventListener("click", (e) => {
+        const el = e.target.closest(".history-trigger");
+        if (!el) return;
+
+        const type = el.dataset.type || "";
+        const name = el.dataset.name || "";
+        const good = Number(el.dataset.good || 0);
+        const payment = Number(el.dataset.payment || 0);
+
+        if (!type || !name) return;
+        showEntityHistory(type, name, good, payment);
+      });
+    }
+
     function saveRatesToLocal() {
       localStorage.setItem("gmailTeamPro_teamRate", state.teamRate || 0);
       localStorage.setItem("gmailTeamPro_sellerRates", JSON.stringify(state.sellerRates || {}));
@@ -1262,7 +1278,13 @@
       target.innerHTML = items.map(item => `
         <div class="item">
           <div>
-            <div class="item-name clickable" onclick="showEntityHistory('seller', '${escapeJs(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">
+            <div 
+              class="item-name clickable history-trigger"
+              data-type="seller"
+              data-name="${escapeHtml(item.name || "")}"
+              data-good="${Number(item.good || 0)}"
+              data-payment="${Number(item.payment || 0)}"
+            >
               ${escapeHtml(item.name || "Unknown Seller")}
             </div>
             <div class="item-sub">
@@ -1291,7 +1313,13 @@
       target.innerHTML = items.map(item => `
         <div class="item">
           <div>
-            <div class="item-name clickable" onclick="showEntityHistory('member', '${escapeJs(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">
+            <div 
+              class="item-name clickable history-trigger"
+              data-type="member"
+              data-name="${escapeHtml(item.name || "")}"
+              data-good="${Number(item.good || 0)}"
+              data-payment="${Number(item.payment || 0)}"
+            >
               ${escapeHtml(item.name || "Unknown Member")}
             </div>
             <div class="item-sub">
@@ -1407,9 +1435,15 @@
         },
         options: {
           maintainAspectRatio: false,
+          cutout: "68%",
           plugins: {
             legend: {
-              labels: { color: "#ffffff" }
+              position: "bottom",
+              labels: {
+                color: "#ffffff",
+                boxWidth: 12,
+                padding: 12
+              }
             }
           }
         }
@@ -1436,9 +1470,9 @@
 
         if (state.role === "admin" || state.role === "super") {
           if (type === "member") {
-            actions.innerHTML = `<button class="btn red" onclick="resetSpecificMember('${escapeJs(name)}', ${Number(good || 0)}, ${Number(payment || 0)})">Reset Member</button>`;
+            actions.innerHTML = `<button class="btn red" onclick="resetSpecificMember('${encodeURIComponent(name)}', ${Number(good || 0)}, ${Number(payment || 0)})">Reset Member</button>`;
           } else {
-            actions.innerHTML = `<button class="btn red" onclick="resetSpecificSeller('${escapeJs(name)}', ${Number(good || 0)}, ${Number(payment || 0)})">Reset Seller</button>`;
+            actions.innerHTML = `<button class="btn red" onclick="resetSpecificSeller('${encodeURIComponent(name)}', ${Number(good || 0)}, ${Number(payment || 0)})">Reset Seller</button>`;
           }
         }
 
@@ -1517,7 +1551,8 @@
       }
     }
 
-    async function resetSpecificMember(name, good, payment) {
+    async function resetSpecificMember(encodedName, good, payment) {
+      const name = decodeURIComponent(encodedName);
       const ok = confirm("এই member reset করবে?");
       if (!ok) return;
 
@@ -1544,7 +1579,8 @@
       }
     }
 
-    async function resetSpecificSeller(name, good, payment) {
+    async function resetSpecificSeller(encodedName, good, payment) {
+      const name = decodeURIComponent(encodedName);
       const ok = confirm("এই seller reset করবে?");
       if (!ok) return;
 
@@ -1853,11 +1889,8 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
       window.addEventListener("resize", resize);
     }
 
-    function escapeJs(str) {
-      return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-    }
-
     setupCardClicks();
+    bindHistoryClicks();
     bindLogin();
     startCodeBackground();
     loadRatesFromLocal();
