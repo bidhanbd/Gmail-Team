@@ -1,138 +1,1134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Gmail Team Pro</title>
-<style>
-body {margin:0;font-family:Arial;background:linear-gradient(135deg,#74b9ff,#a29bfe);}
-.container {max-width:1100px;margin:auto;padding:20px;}
-h1,h2,h3,h4,p{color:white;margin:4px;}
-.card {background: rgba(255,255,255,0.15);backdrop-filter: blur(12px);border-radius: 15px;padding: 20px;margin: 15px 0;}
-.flex {display:flex;flex-wrap:wrap;gap:10px;}
-.box {flex:1;min-width:200px;background: rgba(255,255,255,0.2);padding:10px;border-radius:10px;text-align:center;}
-button {padding:6px 10px;border:none;border-radius:5px;background:#0984e3;color:white;cursor:pointer;}
-input {padding:4px 6px;border-radius:4px;border:none;}
-.hidden{display:none;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gmail Team Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#060816;
+      --bg-soft:#0d1328;
+      --card:rgba(16,20,40,.62);
+      --stroke:rgba(255,255,255,.09);
+      --text:#f5f7ff;
+      --muted:#aab4d6;
+      --blue:#47a7ff;
+      --purple:#8a5cff;
+      --cyan:#45f3ff;
+      --green:#27e58a;
+      --red:#ff5d7a;
+      --gold:#ffcc66;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:24px;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      font-family:"Plus Jakarta Sans",sans-serif;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(71,167,255,.20), transparent 25%),
+        radial-gradient(circle at 90% 15%, rgba(138,92,255,.18), transparent 25%),
+        radial-gradient(circle at 75% 85%, rgba(69,243,255,.14), transparent 20%),
+        linear-gradient(145deg, #050711 0%, #0b1020 45%, #070b16 100%);
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size:32px 32px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.5), transparent 90%);
+      pointer-events:none;
+      opacity:.35;
+    }
+
+    .orb{
+      position:fixed;
+      width:320px;
+      height:320px;
+      border-radius:50%;
+      filter:blur(60px);
+      opacity:.22;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .orb.one{ background:var(--blue); top:-80px; left:-80px; }
+    .orb.two{ background:var(--purple); top:20%; right:-100px; }
+    .orb.three{ background:var(--cyan); bottom:-100px; left:20%; }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      width:min(1380px, calc(100% - 28px));
+      margin:24px auto 40px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:18px 20px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--stroke);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(20px);
+      margin-bottom:22px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .brand-badge{
+      width:54px;
+      height:54px;
+      border-radius:18px;
+      background:linear-gradient(145deg, rgba(71,167,255,.28), rgba(138,92,255,.22));
+      border:1px solid rgba(255,255,255,.10);
+      display:grid;
+      place-items:center;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 10px 30px rgba(71,167,255,.18);
+      font-size:24px;
+    }
+
+    .brand-text h1{
+      font-size:clamp(22px, 2vw, 30px);
+      font-weight:800;
+      line-height:1.1;
+      background:linear-gradient(90deg,#ffffff 0%, #97c8ff 35%, #b99cff 65%, #c9faff 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      text-shadow:0 0 20px rgba(113,166,255,.25);
+    }
+
+    .brand-text p{
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      padding:12px 16px;
+      border-radius:16px;
+      font-weight:700;
+      color:var(--text);
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      transition:.25s ease;
+      box-shadow:0 10px 25px rgba(0,0,0,.18);
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(71,167,255,.22), rgba(138,92,255,.24));
+      border:1px solid rgba(140,180,255,.24);
+      box-shadow:0 12px 30px rgba(85,133,255,.18);
+    }
+
+    .glass{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .glass::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 28%);
+      pointer-events:none;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.25fr .75fr;
+      gap:18px;
+      margin-bottom:18px;
+    }
+
+    .hero-main{
+      padding:26px;
+      min-height:220px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .chip-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:18px;
+    }
+
+    .chip{
+      padding:9px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      color:#dce6ff;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .hero-main h2{
+      font-size:clamp(28px, 3vw, 42px);
+      line-height:1.08;
+      font-weight:800;
+      max-width:740px;
+      margin-bottom:12px;
+    }
+
+    .hero-main p{
+      color:var(--muted);
+      max-width:760px;
+      line-height:1.7;
+      font-size:14px;
+    }
+
+    .hero-side{
+      padding:22px;
+      display:grid;
+      gap:14px;
+      align-content:start;
+    }
+
+    .mini-stat{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:16px 18px;
+      border-radius:20px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .mini-stat span{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:600;
+    }
+
+    .mini-stat strong{
+      font-size:20px;
+      font-weight:800;
+      color:#fff;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:16px;
+      margin-bottom:18px;
+    }
+
+    .stat-card{
+      padding:22px;
+      min-height:152px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .stat-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+    }
+
+    .label{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .icon{
+      width:44px;
+      height:44px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      font-size:18px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.05);
+    }
+
+    .stat-value{
+      font-size:38px;
+      font-weight:800;
+      letter-spacing:-1px;
+    }
+
+    .stat-bottom{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .content-grid{
+      display:grid;
+      grid-template-columns:1.35fr .85fr;
+      gap:18px;
+    }
+
+    .section{
+      padding:22px;
+    }
+
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .section-head h3{
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .section-head p{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:4px;
+    }
+
+    .breakdown-shell{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+
+    .break-card{
+      padding:18px;
+      border-radius:20px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .break-card h4{
+      font-size:15px;
+      font-weight:800;
+      margin-bottom:14px;
+    }
+
+    .seller-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .seller-item{
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.06);
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+
+    .seller-left{
+      min-width:0;
+    }
+
+    .seller-name{
+      font-size:14px;
+      font-weight:700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .seller-sub{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+      line-height:1.5;
+    }
+
+    .seller-count{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+      color:#ecf3ff;
+      font-weight:700;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.07);
+      white-space:nowrap;
+    }
+
+    .right-stack{
+      display:grid;
+      gap:18px;
+    }
+
+    .payment-box{
+      padding:18px;
+      border-radius:20px;
+      background:linear-gradient(145deg, rgba(71,167,255,.12), rgba(138,92,255,.12));
+      border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px;
+    }
+
+    .payment-box .big{
+      font-size:30px;
+      font-weight:800;
+      margin-top:8px;
+    }
+
+    .kv{
+      display:grid;
+      gap:12px;
+    }
+
+    .kv-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.06);
+      font-size:14px;
+    }
+
+    .kv-row span{
+      color:var(--muted);
+    }
+
+    .kv-row strong{
+      font-size:14px;
+      font-weight:800;
+      text-align:right;
+    }
+
+    .panel{
+      padding:16px;
+      border-radius:20px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .input-group{
+      display:grid;
+      gap:10px;
+    }
+
+    .input{
+      width:100%;
+      padding:13px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(6,10,24,.65);
+      color:#fff;
+      outline:none;
+    }
+
+    .input::placeholder{
+      color:#8390b6;
+    }
+
+    .panel-actions{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+
+    .table-wrap{
+      margin-top:14px;
+      border-radius:20px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      padding:14px 16px;
+      text-align:left;
+      font-size:13px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    th{
+      color:#dbe6ff;
+      font-weight:800;
+      background:rgba(255,255,255,.04);
+    }
+
+    td{
+      color:#c8d3f2;
+    }
+
+    tr:last-child td{
+      border-bottom:none;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:84px;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .good{
+      background:rgba(39,229,138,.15);
+      color:#79ffbc;
+      border:1px solid rgba(39,229,138,.18);
+    }
+
+    .problem{
+      background:rgba(255,93,122,.15);
+      color:#ff9eb0;
+      border:1px solid rgba(255,93,122,.18);
+    }
+
+    .other{
+      background:rgba(255,204,102,.15);
+      color:#ffd98b;
+      border:1px solid rgba(255,204,102,.18);
+    }
+
+    .footer-note{
+      text-align:center;
+      margin-top:18px;
+      color:#8c98bf;
+      font-size:12px;
+      opacity:.9;
+    }
+
+    @media (max-width: 1180px){
+      .hero,
+      .content-grid{
+        grid-template-columns:1fr;
+      }
+
+      .stats-grid{
+        grid-template-columns:repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px){
+      .wrap{
+        width:min(100% - 16px, 1380px);
+        margin:16px auto 28px;
+      }
+
+      .stats-grid{
+        grid-template-columns:1fr;
+      }
+
+      .breakdown-shell{
+        grid-template-columns:1fr;
+      }
+
+      .stat-value{
+        font-size:32px;
+      }
+
+      th, td{
+        padding:12px;
+        font-size:12px;
+      }
+
+      .top-actions .btn{
+        flex:1;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
+  <div class="orb one"></div>
+  <div class="orb two"></div>
+  <div class="orb three"></div>
 
-<div id="loginBox" class="card">
-<h2>Login</h2>
-<input id="username" placeholder="Username"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
-<button onclick="login()">Login</button>
-<p id="msg"></p>
-</div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">✦</div>
+        <div class="brand-text">
+          <h1>Gmail Team Pro</h1>
+          <p>Premium live dashboard for mails, seller overview, team performance and payment tracking</p>
+        </div>
+      </div>
 
-<div id="dashboard" class="hidden">
-<h1>Gmail Team Pro</h1>
+      <div class="top-actions">
+        <button class="btn" onclick="refreshData()">Refresh</button>
+        <button class="btn primary" onclick="copySummary()">Copy Summary</button>
+      </div>
+    </div>
 
-<div class="card">
-<h2>Summary</h2>
-<div class="flex" id="summary"></div>
-</div>
+    <div class="hero">
+      <div class="glass hero-main">
+        <div>
+          <div class="chip-row">
+            <div class="chip">Live Sheet Sync</div>
+            <div class="chip">Seller + Member Breakdown</div>
+            <div class="chip">Auto Payment Calculate</div>
+          </div>
+          <h2>One clean dashboard for total mails, seller activity, team result and payment view.</h2>
+          <p>
+            Live Google Sheet data will load here. Payment will calculate automatically from Good count and your fixed rates entered on the website.
+          </p>
+        </div>
+      </div>
 
-<div class="card">
-<h2>Payment System</h2>
-<div class="flex">
-<div class="box">
-<h3>Seller</h3>
-<div id="sellerBox"></div>
-</div>
-<div class="box">
-<h3>Member</h3>
-<div id="memberBox"></div>
-</div>
-<div class="box">
-<h3>Total Payment</h3>
-<div id="teamBox"></div>
-</div>
-</div>
-</div>
+      <div class="glass hero-side">
+        <div class="mini-stat">
+          <span>Last Updated</span>
+          <strong id="lastUpdated">--</strong>
+        </div>
+        <div class="mini-stat">
+          <span>Total Sellers</span>
+          <strong id="sellerCount">0</strong>
+        </div>
+        <div class="mini-stat">
+          <span>Total Members</span>
+          <strong id="memberCount">0</strong>
+        </div>
+      </div>
+    </div>
 
-<div id="logsCard" class="card hidden">
-<h2>Activity Logs</h2>
-<div id="logs"></div>
-</div>
-</div>
-</div>
+    <div class="stats-grid">
+      <div class="glass stat-card">
+        <div class="stat-top">
+          <div class="label">Total Mails</div>
+          <div class="icon">📨</div>
+        </div>
+        <div class="stat-value" id="totalMails">0</div>
+        <div class="stat-bottom">
+          <span>All sheets combined</span>
+          <span id="totalMailsSub">Live count</span>
+        </div>
+      </div>
 
-<script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVp4W_Prz2xk1UwvwDxI6URDIBxWhAB5VzeIGvNjTffV7CV8zKUUMjSjN2KJpTCZ0a/exec";
+      <div class="glass stat-card">
+        <div class="stat-top">
+          <div class="label">Good</div>
+          <div class="icon">✅</div>
+        </div>
+        <div class="stat-value" id="goodMails">0</div>
+        <div class="stat-bottom">
+          <span>Successful entries</span>
+          <span id="goodRate">0%</span>
+        </div>
+      </div>
 
-let user="", role="";
+      <div class="glass stat-card">
+        <div class="stat-top">
+          <div class="label">Problem</div>
+          <div class="icon">⚠️</div>
+        </div>
+        <div class="stat-value" id="problemMails">0</div>
+        <div class="stat-bottom">
+          <span>Need review</span>
+          <span id="problemRate">0%</span>
+        </div>
+      </div>
 
-async function login(){
-  const username=document.getElementById("username").value;
-  const password=document.getElementById("password").value;
+      <div class="glass stat-card">
+        <div class="stat-top">
+          <div class="label">Team Payment</div>
+          <div class="icon">💸</div>
+        </div>
+        <div class="stat-value" id="totalPayment">0</div>
+        <div class="stat-bottom">
+          <span>Good × Team Rate</span>
+          <span id="paymentMode">Auto calc</span>
+        </div>
+      </div>
+    </div>
 
-  if(username==="superadmin" && password==="super@2024"){role="superadmin";}
-  else if(username==="admin" && password==="admin@555"){role="admin";}
-  else{role="member";}
+    <div class="content-grid">
+      <div class="left-stack">
+        <div class="glass section">
+          <div class="section-head">
+            <div>
+              <h3>Seller Breakdown</h3>
+              <p>Sheet1 and Other Sheets breakdown inside the same section</p>
+            </div>
+          </div>
 
-  user=username;
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
-  loadData();
-  setInterval(loadData,5000);
-}
+          <div class="breakdown-shell">
+            <div class="break-card">
+              <h4>Sheet1 Seller Breakdown</h4>
+              <div class="seller-list" id="sheet1SellerList"></div>
+            </div>
 
-function getRate(seller){return Number(localStorage.getItem("rate_"+seller))||0;}
-function updateRate(seller,rate){localStorage.setItem("rate_"+seller,rate); loadData();}
+            <div class="break-card">
+              <h4>Other Sheets Seller Breakdown</h4>
+              <div class="seller-list" id="otherSellerList"></div>
+            </div>
+          </div>
+        </div>
 
-async function loadData(){
-  const res=await fetch(`${SCRIPT_URL}?action=dashboard&user=${user}&role=${role}`);
-  const data=await res.json();
-  renderSummary(data);
-  renderPayment(data);
-  if(role==="superadmin") document.getElementById("logsCard").classList.remove("hidden");
-}
+        <div class="glass section">
+          <div class="section-head">
+            <div>
+              <h3>Recent Mail Status</h3>
+              <p>Latest live rows from sheet</p>
+            </div>
+          </div>
 
-function renderSummary(data){
-  const div=document.getElementById("summary");
-  let total=0, good=0, problem=0, payment=0;
-  Object.values(data.statusCount).forEach(v=> total+=v);
-  good = data.statusCount.ok||0;
-  problem = total-good;
-  Object.values(data.memberGood).forEach(v=> payment+=v);
-  div.innerHTML=`<div class="box">Total: ${total}</div>
-                 <div class="box">Good: ${good}</div>
-                 <div class="box">Problem: ${problem}</div>
-                 <div class="box">Payment: ${payment} BDT</div>`;
-}
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mail</th>
+                  <th>Seller</th>
+                  <th>Team Member</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-function renderPayment(data){
-  const sellerDiv=document.getElementById("sellerBox"); sellerDiv.innerHTML=""; let totalPayment=0;
-  Object.keys(data.sellerGood).forEach(s=>{
-    const goodCount=data.sellerGood[s]||0;
-    const problemCount=data.sellerProblem[s]||0;
-    const rate=getRate(s);
-    const payment=goodCount*rate; totalPayment+=payment;
-    sellerDiv.innerHTML+=`<div style="border:1px solid rgba(255,255,255,0.3);padding:10px;margin:5px;border-radius:10px;background:rgba(255,255,255,0.1)">
-      <h4>${s}</h4>
-      <p>Good: ${goodCount} | Problem: ${problemCount}</p>
-      <p>Payment: ${payment} BDT</p>
-      ${role!=="member"?`<input type="number" value="${rate}" placeholder="Rate" onchange="updateRate('${s}',this.value)">`:""}
-      ${role!=="member"?`<button onclick="exportData('seller','${s}')">Export</button>`:""}
-    </div>`;
-  });
+      <div class="right-stack">
+        <div class="glass section">
+          <div class="section-head">
+            <div>
+              <h3>Payment Panel</h3>
+              <p>Calculated from Good and fixed rate</p>
+            </div>
+          </div>
 
-  const memberDiv=document.getElementById("memberBox"); memberDiv.innerHTML="";
-  Object.keys(data.memberGood).forEach(m=>{
-    const good=data.memberGood[m]||0; const problem=data.memberProblem[m]||0;
-    let payment=0; Object.keys(data.sellerGood).forEach(s=>{payment+=getRate(s);});
-    memberDiv.innerHTML+=`<div style="border:1px solid rgba(255,255,255,0.2);padding:8px;margin:4px;border-radius:8px;background:rgba(255,255,255,0.05)">
-      <h4>${m}</h4><p>Good: ${good} | Problem: ${problem}</p><p>Payment: ${payment} BDT</p></div>`;
-  });
+          <div class="payment-box">
+            <div style="color:var(--muted)">Current Team Payment</div>
+            <div class="big" id="paymentBig">0</div>
+          </div>
 
-  document.getElementById("teamBox").innerHTML=`<h2>${totalPayment} BDT</h2>`;
-}
+          <div class="kv">
+            <div class="kv-row">
+              <span>Sheet1 Good</span>
+              <strong id="sheet1Good">0</strong>
+            </div>
+            <div class="kv-row">
+              <span>Other Sheets Good</span>
+              <strong id="otherGood">0</strong>
+            </div>
+            <div class="kv-row">
+              <span>Team Rate</span>
+              <strong id="teamRateView">0</strong>
+            </div>
+            <div class="kv-row">
+              <span>Total Seller Payment</span>
+              <strong id="sellerPaymentView">0</strong>
+            </div>
+          </div>
+        </div>
 
-function exportData(type,name){
-  window.open(`${SCRIPT_URL}?action=export&filter=${type}&name=${name}&role=${role}&user=${user}`);
-}
-</script>
+        <div class="glass section">
+          <div class="section-head">
+            <div>
+              <h3>Rate Update</h3>
+              <p>Optional quick calculator</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="input-group">
+              <input id="teamRateInput" class="input" type="number" placeholder="Team Member Rate">
+              <select id="sellerSelect" class="input" onchange="fillSellerRateInput()"></select>
+              <input id="sellerRateInput" class="input" type="number" placeholder="Selected Seller Rate">
+            </div>
+
+            <div class="panel-actions">
+              <button class="btn primary" onclick="applyRates()">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass section">
+          <div class="section-head">
+            <div>
+              <h3>Team Summary</h3>
+              <p>Member wise live performance</p>
+            </div>
+          </div>
+
+          <div class="seller-list" id="teamSummaryList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Premium UI redesign keeping the same project name.
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbx_0oHsllq3nYX9OVSgVvx5ddiMBtD390i5RWpBeEqXcOXd6LT1T3E3lGERdDVYTzFq/exec";
+
+    const state = {
+      stats: {
+        total: 0,
+        good: 0,
+        problem: 0,
+        other: 0,
+        sheet1Good: 0,
+        otherGood: 0,
+        totalTeamPayment: 0,
+        totalSellerPayment: 0
+      },
+      sellers: {
+        sheet1: [],
+        other: []
+      },
+      members: [],
+      recent: [],
+      teamRate: 0,
+      sellerRates: {}
+    };
+
+    function formatNumber(num) {
+      return Number(num || 0).toLocaleString();
+    }
+
+    function formatCurrency(num) {
+      return Number(num || 0).toLocaleString();
+    }
+
+    function percent(part, total) {
+      if (!total) return "0%";
+      return ((part / total) * 100).toFixed(1) + "%";
+    }
+
+    function escapeHtml(str = "") {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function saveRatesToLocal() {
+      localStorage.setItem("gmailTeamPro_teamRate", state.teamRate || 0);
+      localStorage.setItem("gmailTeamPro_sellerRates", JSON.stringify(state.sellerRates || {}));
+    }
+
+    function loadRatesFromLocal() {
+      const teamRate = Number(localStorage.getItem("gmailTeamPro_teamRate") || 0);
+      const sellerRates = JSON.parse(localStorage.getItem("gmailTeamPro_sellerRates") || "{}");
+
+      state.teamRate = teamRate;
+      state.sellerRates = sellerRates;
+
+      const teamRateInput = document.getElementById("teamRateInput");
+      if (teamRateInput) {
+        teamRateInput.value = teamRate || "";
+      }
+    }
+
+    function recalculatePayments() {
+      state.members = state.members.map(member => {
+        const good = Number(member.good || 0);
+        return {
+          ...member,
+          rate: state.teamRate,
+          payment: good * state.teamRate
+        };
+      });
+
+      state.sellers.sheet1 = state.sellers.sheet1.map(seller => {
+        const rate = Number(state.sellerRates[seller.name] || 0);
+        return {
+          ...seller,
+          rate,
+          payment: Number(seller.good || 0) * rate
+        };
+      });
+
+      state.sellers.other = state.sellers.other.map(seller => {
+        const rate = Number(state.sellerRates[seller.name] || 0);
+        return {
+          ...seller,
+          rate,
+          payment: Number(seller.good || 0) * rate
+        };
+      });
+
+      state.stats.totalTeamPayment = state.members.reduce((sum, item) => sum + Number(item.payment || 0), 0);
+      state.stats.totalSellerPayment = [...state.sellers.sheet1, ...state.sellers.other]
+        .reduce((sum, item) => sum + Number(item.payment || 0), 0);
+    }
+
+    function populateSellerSelect() {
+      const select = document.getElementById("sellerSelect");
+      const allSellers = [...state.sellers.sheet1, ...state.sellers.other];
+      const uniqueNames = [...new Set(allSellers.map(s => s.name).filter(Boolean))];
+
+      select.innerHTML = uniqueNames.length
+        ? uniqueNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")
+        : `<option value="">No Seller</option>`;
+
+      if (uniqueNames.length) {
+        fillSellerRateInput();
+      }
+    }
+
+    function fillSellerRateInput() {
+      const seller = document.getElementById("sellerSelect").value;
+      document.getElementById("sellerRateInput").value = state.sellerRates[seller] || 0;
+    }
+
+    function applyRates() {
+      state.teamRate = Number(document.getElementById("teamRateInput").value || 0);
+
+      const seller = document.getElementById("sellerSelect").value;
+      const sellerRate = Number(document.getElementById("sellerRateInput").value || 0);
+
+      if (seller) {
+        state.sellerRates[seller] = sellerRate;
+      }
+
+      saveRatesToLocal();
+      recalculatePayments();
+      renderAll();
+    }
+
+    function mapApiToState(data) {
+      state.stats.total = Number(data.totalMails || 0);
+      state.stats.good = Number(data.goodMails || 0);
+      state.stats.problem = Number(data.problemMails || 0);
+      state.stats.other = Number(data.otherMails || 0);
+      state.stats.sheet1Good = Number(data.sheet1Good || 0);
+      state.stats.otherGood = Number(data.otherGood || 0);
+
+      state.sellers.sheet1 = Array.isArray(data.sheet1SellerBreakdown) ? data.sheet1SellerBreakdown : [];
+      state.sellers.other = Array.isArray(data.otherSellerBreakdown) ? data.otherSellerBreakdown : [];
+      state.members = Array.isArray(data.teamMembers) ? data.teamMembers : [];
+      state.recent = Array.isArray(data.recentRecords) ? data.recentRecords.slice(0, 8) : [];
+
+      populateSellerSelect();
+      recalculatePayments();
+    }
+
+    function renderStats() {
+      document.getElementById("totalMails").textContent = formatNumber(state.stats.total);
+      document.getElementById("goodMails").textContent = formatNumber(state.stats.good);
+      document.getElementById("problemMails").textContent = formatNumber(state.stats.problem);
+      document.getElementById("totalPayment").textContent = formatCurrency(state.stats.totalTeamPayment);
+      document.getElementById("paymentBig").textContent = formatCurrency(state.stats.totalTeamPayment);
+
+      document.getElementById("goodRate").textContent = percent(state.stats.good, state.stats.total);
+      document.getElementById("problemRate").textContent = percent(state.stats.problem, state.stats.total);
+      document.getElementById("sheet1Good").textContent = formatNumber(state.stats.sheet1Good);
+      document.getElementById("otherGood").textContent = formatNumber(state.stats.otherGood);
+      document.getElementById("teamRateView").textContent = formatNumber(state.teamRate);
+      document.getElementById("sellerPaymentView").textContent = formatCurrency(state.stats.totalSellerPayment);
+      document.getElementById("sellerCount").textContent = formatNumber([...state.sellers.sheet1, ...state.sellers.other].length);
+      document.getElementById("memberCount").textContent = formatNumber(state.members.length);
+
+      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function renderSellerList(targetId, items) {
+      const target = document.getElementById(targetId);
+
+      if (!items.length) {
+        target.innerHTML = `
+          <div class="seller-item">
+            <div class="seller-left">
+              <div class="seller-name">No data</div>
+              <div class="seller-sub">Nothing available right now</div>
+            </div>
+            <div class="seller-count"><span class="pill">0 total</span></div>
+          </div>
+        `;
+        return;
+      }
+
+      target.innerHTML = items.map(item => `
+        <div class="seller-item">
+          <div class="seller-left">
+            <div class="seller-name">${escapeHtml(item.name || "Unknown Seller")}</div>
+            <div class="seller-sub">
+              Good: ${formatNumber(item.good || 0)} •
+              Problem: ${formatNumber(item.problem || 0)} •
+              Rate: ${formatNumber(item.rate || 0)} •
+              Payment: ${formatCurrency(item.payment || 0)}
+            </div>
+          </div>
+          <div class="seller-count">
+            <span class="pill">${formatNumber(item.total || 0)} total</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderMembers() {
+      const target = document.getElementById("teamSummaryList");
+
+      if (!state.members.length) {
+        target.innerHTML = `
+          <div class="seller-item">
+            <div class="seller-left">
+              <div class="seller-name">No member data</div>
+              <div class="seller-sub">Nothing available right now</div>
+            </div>
+            <div class="seller-count"><span class="pill">0 good</span></div>
+          </div>
+        `;
+        return;
+      }
+
+      target.innerHTML = state.members.map(member => `
+        <div class="seller-item">
+          <div class="seller-left">
+            <div class="seller-name">${escapeHtml(member.name || "Unknown Member")}</div>
+            <div class="seller-sub">
+              Problem: ${formatNumber(member.problem || 0)} •
+              Rate: ${formatNumber(member.rate || 0)} •
+              Payment: ${formatCurrency(member.payment || 0)}
+            </div>
+          </div>
+          <div class="seller-count">
+            <span class="pill">${formatNumber(member.good || 0)} good</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderRecent() {
+      const target = document.getElementById("recentTable");
+
+      if (!state.recent.length) {
+        target.innerHTML = `<tr><td colspan="4">No records found</td></tr>`;
+        return;
+      }
+
+      target.innerHTML = state.recent.map(row => {
+        const s = String(row.status || "").toLowerCase();
+        let cls = "other";
+        if (s.includes("good")) cls = "good";
+        else if (s.includes("problem") || s.includes("bad")) cls = "problem";
+
+        return `
+          <tr>
+            <td>${escapeHtml(row.mail || "-")}</td>
+            <td>${escapeHtml(row.seller || "-")}</td>
+            <td>${escapeHtml(row.member || "-")}</td>
+            <td><span class="tag ${cls}">${escapeHtml(row.status || "Other")}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderAll() {
+      renderStats();
+      renderSellerList("sheet1SellerList", state.sellers.sheet1);
+      renderSellerList("otherSellerList", state.sellers.other);
+      renderMembers();
+      renderRecent();
+    }
+
+    function copySummary() {
+      const text = `Gmail Team Pro Summary
+
+Total Mails: ${state.stats.total}
+Good: ${state.stats.good}
+Problem: ${state.stats.problem}
+Other: ${state.stats.other}
+Team Rate: ${state.teamRate}
+Team Payment: ${state.stats.totalTeamPayment}
+Seller Payment: ${state.stats.totalSellerPayment}`;
+
+      navigator.clipboard.writeText(text);
+      alert("Summary copied");
+    }
+
+    async function refreshData() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || "Failed to load data");
+          return;
+        }
+
+        loadRatesFromLocal();
+        mapApiToState(data);
+        renderAll();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to fetch dashboard data");
+      }
+    }
+
+    loadRatesFromLocal();
+    refreshData();
+  </script>
 </body>
 </html>
