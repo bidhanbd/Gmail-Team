@@ -4,9 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gmail Team Pro</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
   <style>
     :root{
       --bg:#050816;
@@ -19,6 +24,7 @@
       --cyan:#45f3ff;
       --green:#2ee887;
       --red:#ff5f7d;
+      --gold:#ffc75f;
       --shadow:0 24px 70px rgba(0,0,0,.38);
       --radius:24px;
     }
@@ -86,7 +92,7 @@
       background:var(--card);
       border:1px solid var(--stroke);
       border-radius:var(--radius);
-      box-shadow:0 24px 70px rgba(0,0,0,.38);
+      box-shadow:var(--shadow);
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
       position:relative;
@@ -137,10 +143,7 @@
     }
 
     .fire-ring.active::after{opacity:1}
-
-    @keyframes ringSpin{
-      to{transform:rotate(360deg)}
-    }
+    @keyframes ringSpin{to{transform:rotate(360deg)}}
 
     .btn{
       border:none;
@@ -171,6 +174,10 @@
       background:linear-gradient(135deg, rgba(255,95,125,.20), rgba(255,120,80,.20));
     }
 
+    .btn.green{
+      background:linear-gradient(135deg, rgba(46,232,135,.18), rgba(71,167,255,.18));
+    }
+
     .input,.select{
       width:100%;
       padding:14px 15px;
@@ -185,7 +192,6 @@
     .input::placeholder{color:#8390b6}
 
     .page{animation:fadeIn .45s ease}
-
     @keyframes fadeIn{
       from{opacity:0;transform:translateY(10px)}
       to{opacity:1;transform:translateY(0)}
@@ -342,81 +348,39 @@
       flex-wrap:wrap;
     }
 
-    .hero{
+    .chart-grid{
       display:grid;
       grid-template-columns:1.15fr .85fr;
       gap:18px;
       margin-bottom:18px;
     }
 
-    .hero-main{
-      padding:26px;
-      min-height:220px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-    }
-
-    .chip-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-bottom:18px;
-    }
-
-    .chip{
-      padding:9px 14px;
-      border-radius:999px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      color:#dce6ff;
-      font-size:12px;
-      font-weight:800;
-    }
-
-    .hero-main h2{
-      font-size:clamp(28px, 3.4vw, 44px);
-      line-height:1.06;
-      font-weight:800;
-      letter-spacing:-.8px;
-      margin-bottom:12px;
-      max-width:800px;
-    }
-
-    .hero-main p{
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.8;
-      max-width:760px;
-    }
-
-    .hero-side{
+    .section{
       padding:22px;
-      display:grid;
-      gap:14px;
-      align-content:start;
     }
 
-    .mini-stat{
+    .section-head{
       display:flex;
-      align-items:center;
       justify-content:space-between;
-      gap:10px;
-      padding:16px 18px;
-      border-radius:20px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
     }
 
-    .mini-stat span{
+    .section-head h3{
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .section-head p{
       color:var(--muted);
       font-size:13px;
-      font-weight:700;
+      margin-top:4px;
     }
 
-    .mini-stat strong{
-      font-size:22px;
-      font-weight:800;
+    .chart-box{
+      height:320px;
     }
 
     .stats-grid{
@@ -489,30 +453,6 @@
       gap:18px;
     }
 
-    .section{
-      padding:22px;
-    }
-
-    .section-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-      flex-wrap:wrap;
-    }
-
-    .section-head h3{
-      font-size:20px;
-      font-weight:800;
-    }
-
-    .section-head p{
-      color:var(--muted);
-      font-size:13px;
-      margin-top:4px;
-    }
-
     .breakdown-shell{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -554,6 +494,15 @@
       margin-bottom:4px;
       line-height:1.4;
       word-break:break-word;
+    }
+
+    .item-name.clickable{
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .item-name.clickable:hover{
+      color:#9fd3ff;
     }
 
     .item-sub{
@@ -709,34 +658,75 @@
       border:1px solid rgba(255,95,125,.22);
     }
 
-    .rules-grid{
+    .export-nav{
       display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:12px;
+      gap:10px;
     }
 
-    .rule-box{
+    .export-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.045);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .export-row strong{
+      min-width:110px;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+      padding:16px;
+    }
+
+    .modal-backdrop.show{
+      display:flex;
+    }
+
+    .modal-card{
+      width:min(560px, 100%);
+      padding:22px;
+    }
+
+    .modal-title{
+      font-size:24px;
+      font-weight:800;
+      margin-bottom:14px;
+    }
+
+    .ranking-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+
+    .ranking-col{
       padding:16px;
       border-radius:18px;
+      background:rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.045);
     }
 
-    .rule-box strong{
-      display:block;
-      margin-bottom:7px;
-      font-size:14px;
-    }
-
-    .rule-box span{
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.7;
+    .ranking-col h4{
+      margin-bottom:12px;
+      font-size:15px;
+      font-weight:800;
     }
 
     @media (max-width: 1180px){
-      .login-shell,.hero,.content-grid{grid-template-columns:1fr}
+      .chart-grid,.content-grid{grid-template-columns:1fr}
       .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .login-shell{grid-template-columns:1fr}
     }
 
     @media (max-width: 760px){
@@ -744,8 +734,8 @@
         width:min(100% - 14px, 1440px);
         margin:14px auto 24px;
       }
-      .login-left,.login-right,.section,.hero-main,.hero-side{padding:18px}
-      .breakdown-shell,.rules-grid,.stats-grid{grid-template-columns:1fr}
+      .login-left,.login-right,.section{padding:18px}
+      .breakdown-shell,.ranking-grid,.stats-grid{grid-template-columns:1fr}
       .stat-value{font-size:32px}
       th,td{padding:12px;font-size:12px}
       .top-actions .btn{flex:1}
@@ -767,21 +757,19 @@
             <div class="login-badge">✦ Animated Secure Entry</div>
             <div class="login-title">Gmail Team Pro</div>
             <div class="login-sub">
-              Team member name is his/her password.
+              Team member হলে নিজের নামটাই password.
             </div>
           </div>
         </div>
 
         <div class="glass animated-card login-right fire-ring clickable-card">
           <div class="panel-title">Enter Access Password</div>
-          <div class="panel-sub">Universal Login Here</div>
+          <div class="panel-sub">একটাই login page সবার জন্য</div>
 
           <div class="login-form">
             <input id="loginPassword" class="input" type="password" placeholder="Enter password">
             <button class="btn primary" id="loginBtn">Login</button>
-            <div class="small-note">
-              Enter your access password
-            </div>
+            <div class="small-note">Enter your access password</div>
           </div>
 
           <div id="loginMessage" class="notice">Loading members...</div>
@@ -806,31 +794,36 @@
         </div>
       </div>
 
-      <div class="hero">
-        <div class="glass animated-card hero-main fire-ring clickable-card">
-          <div>
-            <div class="chip-row">
-              <div class="chip">Live Sheet Sync</div>
-              <div class="chip">Problem Breakdown</div>
-              <div class="chip">Animated Premium UI</div>
+      <div class="chart-grid">
+        <div class="glass animated-card section fire-ring clickable-card">
+          <div class="section-head">
+            <div>
+              <h3>Live Overview</h3>
+              <p>Good vs Problem chart</p>
             </div>
-            <h2 id="heroTitle">One clean dashboard for total mails, seller activity, team result and payment view.</h2>
-            <p id="heroSub">Live Google Sheet data will load here. Payment will calculate automatically from Good count and the fixed rates entered on the website.</p>
+          </div>
+          <div class="chart-box">
+            <canvas id="mainChart"></canvas>
           </div>
         </div>
 
-        <div class="glass animated-card hero-side fire-ring clickable-card">
-          <div class="mini-stat">
-            <span>Last Updated</span>
-            <strong id="lastUpdated">--</strong>
+        <div class="glass animated-card section fire-ring clickable-card">
+          <div class="section-head">
+            <div>
+              <h3>Top Performers</h3>
+              <p>Ranking summary</p>
+            </div>
           </div>
-          <div class="mini-stat">
-            <span>Total Sellers</span>
-            <strong id="sellerCount">0</strong>
-          </div>
-          <div class="mini-stat">
-            <span>Total Members</span>
-            <strong id="memberCount">0</strong>
+
+          <div class="ranking-grid">
+            <div class="ranking-col">
+              <h4>Top Members</h4>
+              <div class="list" id="topMembersList"></div>
+            </div>
+            <div class="ranking-col">
+              <h4>Top Sellers</h4>
+              <div class="list" id="topSellersList"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -867,7 +860,7 @@
           </div>
           <div class="stat-value" id="problemMails">0</div>
           <div class="stat-bottom">
-            <span>ok ছাড়া all</span>
+            <span>ok ছাড়া সব</span>
             <span id="problemRate">0%</span>
           </div>
         </div>
@@ -996,7 +989,35 @@
                 <button class="btn primary" onclick="applyRates()">Apply Rates</button>
               </div>
 
-              <div class="small-note">সব member-এর rate same. Seller rate আলাদা আলাদা set করা যাবে.</div>
+              <div class="small-note">একবার set করলে browser-এ থাকবে, change না করা পর্যন্ত same থাকবে।</div>
+            </div>
+          </div>
+
+          <div class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Export Navigation</h3>
+                <p>Excel export only</p>
+              </div>
+            </div>
+
+            <div class="export-nav">
+              <div class="export-row">
+                <strong>Sheet1</strong>
+                <button class="btn green" onclick="exportDataset('sheet1Good')">Good Export</button>
+              </div>
+
+              <div class="export-row">
+                <strong>All Problem</strong>
+                <button class="btn red" onclick="exportDataset('allBad')">Bad Export</button>
+              </div>
+
+              <div class="export-row">
+                <strong>Seller Export</strong>
+                <select id="exportSellerSelect" class="select"></select>
+                <button class="btn green" onclick="exportSellerData('sellerGood')">Good</button>
+                <button class="btn red" onclick="exportSellerData('sellerBad')">Bad</button>
+              </div>
             </div>
           </div>
 
@@ -1010,11 +1031,11 @@
 
             <div class="kv">
               <div class="kv-row">
-                <span>Total Good (All Time)</span>
+                <span>Total Good</span>
                 <strong id="historyGood">0</strong>
               </div>
               <div class="kv-row">
-                <span>Total Payment (All Time)</span>
+                <span>Total Payment</span>
                 <strong id="historyPayment">0</strong>
               </div>
               <div class="kv-row">
@@ -1024,7 +1045,7 @@
             </div>
 
             <div class="panel-actions" style="margin-top:14px">
-              <button id="resetPaymentBtn" class="btn red" onclick="resetMemberPayment()">Reset Payment</button>
+              <button id="resetPaymentBtn" class="btn red" onclick="resetOwnMemberPayment()">Reset Payment</button>
             </div>
           </div>
 
@@ -1037,21 +1058,24 @@
             </div>
             <div class="list" id="teamSummaryList"></div>
           </div>
-
-          <div id="rulesSection" class="glass animated-card section fire-ring clickable-card">
-            <div class="section-head">
-              <div>
-                <h3>Rules & Access</h3>
-                
-            </div>
-          </div>
         </div>
       </div>
     </section>
   </div>
 
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="glass modal-card">
+      <div class="modal-title" id="modalTitle">History</div>
+      <div class="kv" id="modalBody"></div>
+      <div class="panel-actions" id="modalActions" style="margin-top:14px"></div>
+      <div class="panel-actions" style="margin-top:14px">
+        <button class="btn" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const API_BASE = "https://script.google.com/macros/s/AKfycbwdmSLfhzhD1KL3zNRFn7EJ8zdQNNy_dgTSx89XZkkjTWl8mbTtzcRfdgQdG2eze8E/exec";
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwXzX2xepBgHUEK3cmvHhLYxgOvwWRf7ASH7v80WXzhep3ZIdelTJLyMkyT0Bvl-vUN/exec";
     const API_URL = API_BASE + "?action=dashboard";
     const ADMIN_PASSWORD = "admin@555";
     const SUPER_ADMIN_PASSWORD = "super@2024";
@@ -1073,15 +1097,18 @@
       sellers: { sheet1: [], other: [] },
       members: [],
       recent: [],
+      problemBreakdown: [],
+      ranking: { topMembers: [], topSellers: [] },
+      memberNames: [],
+      sellerNames: [],
       teamRate: 0,
       sellerRates: {},
-      problemBreakdown: [],
-      memberNames: [],
       history: {
         totalGood: 0,
         totalPayment: 0,
         lastResetDate: ""
-      }
+      },
+      mainChart: null
     };
 
     function formatNumber(num){ return Number(num || 0).toLocaleString(); }
@@ -1126,12 +1153,15 @@
       state.stats.other = Number(data.otherMails || 0);
       state.stats.sheet1Good = Number(data.sheet1Good || 0);
       state.stats.otherGood = Number(data.otherGood || 0);
+
       state.sellers.sheet1 = Array.isArray(data.sheet1SellerBreakdown) ? data.sheet1SellerBreakdown : [];
       state.sellers.other = Array.isArray(data.otherSellerBreakdown) ? data.otherSellerBreakdown : [];
       state.members = Array.isArray(data.teamMembers) ? data.teamMembers : [];
       state.recent = Array.isArray(data.recentRecords) ? data.recentRecords.slice(0, 15) : [];
       state.problemBreakdown = Array.isArray(data.problemBreakdown) ? data.problemBreakdown : [];
       state.memberNames = Array.isArray(data.memberNames) ? data.memberNames : [];
+      state.sellerNames = Array.isArray(data.sellerNames) ? data.sellerNames : [];
+      state.ranking = data.ranking || { topMembers: [], topSellers: [] };
 
       const msg = document.getElementById("loginMessage");
       if (msg) {
@@ -1141,17 +1171,28 @@
       }
 
       populateSellerSelect();
+      populateExportSellerSelect();
       recalculatePayments();
     }
 
     function populateSellerSelect() {
       const select = document.getElementById("sellerSelect");
-      const allSellers = [...state.sellers.sheet1, ...state.sellers.other];
-      const uniqueNames = [...new Set(allSellers.map(s => s.name).filter(Boolean))];
-      select.innerHTML = uniqueNames.length
-        ? uniqueNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")
+      if (!select) return;
+
+      select.innerHTML = state.sellerNames.length
+        ? state.sellerNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")
         : `<option value="">No Seller</option>`;
-      if (uniqueNames.length) fillSellerRateInput();
+
+      if (state.sellerNames.length) fillSellerRateInput();
+    }
+
+    function populateExportSellerSelect() {
+      const select = document.getElementById("exportSellerSelect");
+      if (!select) return;
+
+      select.innerHTML = state.sellerNames.length
+        ? state.sellerNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")
+        : `<option value="">No Seller</option>`;
     }
 
     function fillSellerRateInput() {
@@ -1163,7 +1204,11 @@
       state.teamRate = Number(document.getElementById("teamRateInput").value || 0);
       const seller = document.getElementById("sellerSelect").value;
       const sellerRate = Number(document.getElementById("sellerRateInput").value || 0);
-      if (seller) state.sellerRates[seller] = sellerRate;
+
+      if (seller) {
+        state.sellerRates[seller] = sellerRate;
+      }
+
       saveRatesToLocal();
       recalculatePayments();
       renderDashboardByRole();
@@ -1190,17 +1235,6 @@
         .reduce((sum, item) => sum + Number(item.payment || 0), 0);
     }
 
-    function aggregateProblemFromRows(rows) {
-      const map = {};
-      rows.forEach(r => {
-        const s = String(r.status || "").trim();
-        if (!s || s.toLowerCase() === "ok") return;
-        if (!map[s]) map[s] = 0;
-        map[s]++;
-      });
-      return Object.keys(map).map(key => ({ name:key, count:map[key] })).sort((a,b)=>b.count-a.count);
-    }
-
     function renderStats(customStats = null) {
       const s = customStats || state.stats;
       document.getElementById("totalMails").textContent = formatNumber(s.total || 0);
@@ -1214,82 +1248,92 @@
       document.getElementById("otherGood").textContent = formatNumber(s.otherGood || 0);
       document.getElementById("teamRateView").textContent = formatNumber(state.teamRate);
       document.getElementById("sellerPaymentView").textContent = formatCurrency(s.sellerPayment || state.stats.totalSellerPayment);
-      document.getElementById("sellerCount").textContent = formatNumber((s.sellerCount != null) ? s.sellerCount : [...state.sellers.sheet1, ...state.sellers.other].length);
-      document.getElementById("memberCount").textContent = formatNumber((s.memberCount != null) ? s.memberCount : state.members.length);
-      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
     }
 
-    function renderList(targetId, items, mode = "seller") {
+    function renderSellerList(targetId, items) {
       const target = document.getElementById(targetId);
+      if (!target) return;
 
       if (!items || !items.length) {
-        target.innerHTML = `
-          <div class="item">
-            <div>
-              <div class="item-name">No data</div>
-              <div class="item-sub">Nothing available right now</div>
-            </div>
-            <div class="item-side"><span class="pill">0</span></div>
-          </div>
-        `;
+        target.innerHTML = `<div class="item"><div><div class="item-name">No data</div><div class="item-sub">Nothing available right now</div></div><div class="item-side"><span class="pill">0</span></div></div>`;
         return;
       }
 
-      if (mode === "seller") {
-        target.innerHTML = items.map(item => `
-          <div class="item">
-            <div>
-              <div class="item-name">${escapeHtml(item.name || "Unknown Seller")}</div>
-              <div class="item-sub">
-                Good: ${formatNumber(item.good || 0)} •
-                Problem: ${formatNumber(item.problem || 0)} •
-                Rate: ${formatNumber(item.rate || 0)} •
-                Payment: ${formatCurrency(item.payment || 0)}
-              </div>
+      target.innerHTML = items.map(item => `
+        <div class="item">
+          <div>
+            <div class="item-name clickable" onclick="showEntityHistory('seller', '${escapeJs(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">
+              ${escapeHtml(item.name || "Unknown Seller")}
             </div>
-            <div class="item-side">
-              <span class="pill">${formatNumber(item.total || 0)} total</span>
+            <div class="item-sub">
+              Good: ${formatNumber(item.good || 0)} •
+              Problem: ${formatNumber(item.problem || 0)} •
+              Rate: ${formatNumber(item.rate || 0)} •
+              Payment: ${formatCurrency(item.payment || 0)}
             </div>
           </div>
-        `).join("");
+          <div class="item-side">
+            <span class="pill">${formatNumber(item.total || 0)} total</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderMembers(items) {
+      const target = document.getElementById("teamSummaryList");
+      if (!target) return;
+
+      if (!items || !items.length) {
+        target.innerHTML = `<div class="item"><div><div class="item-name">No data</div><div class="item-sub">Nothing available right now</div></div><div class="item-side"><span class="pill">0</span></div></div>`;
+        return;
       }
 
-      if (mode === "member") {
-        target.innerHTML = items.map(item => `
-          <div class="item">
-            <div>
-              <div class="item-name">${escapeHtml(item.name || "Unknown Member")}</div>
-              <div class="item-sub">
-                Total: ${formatNumber(item.total || 0)} •
-                Problem: ${formatNumber(item.problem || 0)} •
-                Rate: ${formatNumber(item.rate || 0)} •
-                Payment: ${formatCurrency(item.payment || 0)}
-              </div>
+      target.innerHTML = items.map(item => `
+        <div class="item">
+          <div>
+            <div class="item-name clickable" onclick="showEntityHistory('member', '${escapeJs(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">
+              ${escapeHtml(item.name || "Unknown Member")}
             </div>
-            <div class="item-side">
-              <span class="pill">${formatNumber(item.good || 0)} good</span>
+            <div class="item-sub">
+              Total: ${formatNumber(item.total || 0)} •
+              Problem: ${formatNumber(item.problem || 0)} •
+              Rate: ${formatNumber(item.rate || 0)} •
+              Payment: ${formatCurrency(item.payment || 0)}
             </div>
           </div>
-        `).join("");
+          <div class="item-side">
+            <span class="pill">${formatNumber(item.good || 0)} good</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderProblemBreakdown(items) {
+      const target = document.getElementById("problemBreakdownList");
+      if (!target) return;
+
+      if (!items || !items.length) {
+        target.innerHTML = `<div class="item"><div><div class="item-name">No problem data</div><div class="item-sub">No problem status found</div></div><div class="item-side"><span class="pill">0 pcs</span></div></div>`;
+        return;
       }
 
-      if (mode === "problem") {
-        target.innerHTML = items.map(item => `
-          <div class="item">
-            <div>
-              <div class="item-name">${escapeHtml(item.name || "Unknown")}</div>
-              <div class="item-sub">Problem status count</div>
-            </div>
-            <div class="item-side">
-              <span class="pill">${formatNumber(item.count || 0)} pcs</span>
-            </div>
+      target.innerHTML = items.map(item => `
+        <div class="item">
+          <div>
+            <div class="item-name">${escapeHtml(item.name || "Unknown")}</div>
+            <div class="item-sub">Problem status count</div>
           </div>
-        `).join("");
-      }
+          <div class="item-side">
+            <span class="pill">${formatNumber(item.count || 0)} pcs</span>
+          </div>
+        </div>
+      `).join("");
     }
 
     function renderRecent(rows) {
       const target = document.getElementById("recentTable");
+      if (!target) return;
+
       if (!rows || !rows.length) {
         target.innerHTML = `<tr><td colspan="5">No records found</td></tr>`;
         return;
@@ -1297,8 +1341,7 @@
 
       target.innerHTML = rows.map(row => {
         const s = String(row.status || "").trim().toLowerCase();
-        let cls = "problem";
-        if (s === "ok") cls = "good";
+        const cls = s === "ok" ? "good" : "problem";
 
         return `
           <tr>
@@ -1312,20 +1355,116 @@
       }).join("");
     }
 
-    async function loadMemberHistory(memberName) {
+    function renderRanking() {
+      const memberTarget = document.getElementById("topMembersList");
+      const sellerTarget = document.getElementById("topSellersList");
+
+      const topMembers = Array.isArray(state.ranking.topMembers) ? state.ranking.topMembers : [];
+      const topSellers = Array.isArray(state.ranking.topSellers) ? state.ranking.topSellers : [];
+
+      memberTarget.innerHTML = topMembers.length
+        ? topMembers.map(item => `
+            <div class="item">
+              <div>
+                <div class="item-name">${escapeHtml(item.name)}</div>
+                <div class="item-sub">Good: ${formatNumber(item.good || 0)}</div>
+              </div>
+              <div class="item-side"><span class="pill">#</span></div>
+            </div>
+          `).join("")
+        : `<div class="item"><div><div class="item-name">No data</div></div></div>`;
+
+      sellerTarget.innerHTML = topSellers.length
+        ? topSellers.map(item => `
+            <div class="item">
+              <div>
+                <div class="item-name">${escapeHtml(item.name)}</div>
+                <div class="item-sub">Good: ${formatNumber(item.good || 0)}</div>
+              </div>
+              <div class="item-side"><span class="pill">#</span></div>
+            </div>
+          `).join("")
+        : `<div class="item"><div><div class="item-name">No data</div></div></div>`;
+    }
+
+    function renderChart() {
+      const ctx = document.getElementById("mainChart");
+      if (!ctx) return;
+
+      if (state.mainChart) {
+        state.mainChart.destroy();
+      }
+
+      state.mainChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Good", "Problem"],
+          datasets: [{
+            data: [state.stats.good, state.stats.problem],
+            backgroundColor: ["#2ee887", "#ff5f7d"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: "#ffffff" }
+            }
+          }
+        }
+      });
+    }
+
+    async function showEntityHistory(type, name, good, payment) {
       try {
-        const url = `${API_BASE}?action=history&member=${encodeURIComponent(memberName)}`;
-        const res = await fetch(url);
+        const res = await fetch(`${API_BASE}?action=history&type=${encodeURIComponent(type)}&name=${encodeURIComponent(name)}`);
         const data = await res.json();
 
-        if (!data.success) return;
+        document.getElementById("modalTitle").textContent = `${name} History`;
+
+        document.getElementById("modalBody").innerHTML = `
+          <div class="kv-row"><span>Total Good</span><strong>${formatNumber(data.totalGood || 0)}</strong></div>
+          <div class="kv-row"><span>Total Payment</span><strong>${formatCurrency(data.totalPayment || 0)}</strong></div>
+          <div class="kv-row"><span>Last Reset Date</span><strong>${data.lastResetDate ? new Date(data.lastResetDate).toLocaleString() : "-"}</strong></div>
+          <div class="kv-row"><span>Current Good</span><strong>${formatNumber(good || 0)}</strong></div>
+          <div class="kv-row"><span>Current Payment</span><strong>${formatCurrency(payment || 0)}</strong></div>
+        `;
+
+        const actions = document.getElementById("modalActions");
+        actions.innerHTML = "";
+
+        if (state.role === "admin" || state.role === "super") {
+          if (type === "member") {
+            actions.innerHTML = `<button class="btn red" onclick="resetSpecificMember('${escapeJs(name)}', ${Number(good || 0)}, ${Number(payment || 0)})">Reset Member</button>`;
+          } else {
+            actions.innerHTML = `<button class="btn red" onclick="resetSpecificSeller('${escapeJs(name)}', ${Number(good || 0)}, ${Number(payment || 0)})">Reset Seller</button>`;
+          }
+        }
+
+        openModal();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load history");
+      }
+    }
+
+    function openModal() {
+      document.getElementById("modalBackdrop").classList.add("show");
+    }
+
+    function closeModal() {
+      document.getElementById("modalBackdrop").classList.remove("show");
+    }
+
+    async function loadMemberOwnHistory(memberName) {
+      try {
+        const res = await fetch(`${API_BASE}?action=history&type=member&name=${encodeURIComponent(memberName)}`);
+        const data = await res.json();
 
         state.history.totalGood = Number(data.totalGood || 0);
         state.history.totalPayment = Number(data.totalPayment || 0);
         state.history.lastResetDate = data.lastResetDate || "";
-
-        const section = document.getElementById("historySection");
-        if (section) section.classList.remove("hidden");
 
         document.getElementById("historyGood").textContent = formatNumber(state.history.totalGood);
         document.getElementById("historyPayment").textContent = formatCurrency(state.history.totalPayment);
@@ -1337,11 +1476,11 @@
       }
     }
 
-    async function resetMemberPayment() {
+    async function resetOwnMemberPayment() {
       if (state.role !== "member" || !state.memberName) return;
 
       const currentMember = state.members.find(
-        m => String(m.name || "").toLowerCase() === String(state.memberName || "").toLowerCase()
+        item => String(item.name || "").toLowerCase() === String(state.memberName || "").toLowerCase()
       );
 
       const currentGood = Number(currentMember?.good || 0);
@@ -1355,18 +1494,14 @@
       const ok = confirm("Payment complete হলে reset হবে. Continue?");
       if (!ok) return;
 
-      const form = new URLSearchParams();
-      form.append("action", "reset");
-      form.append("member", state.memberName);
-      form.append("good", currentGood);
-      form.append("payment", currentPayment);
-
       try {
-        const res = await fetch(API_BASE, {
-          method: "POST",
-          body: form
-        });
+        const form = new URLSearchParams();
+        form.append("action", "resetMember");
+        form.append("name", state.memberName);
+        form.append("good", currentGood);
+        form.append("payment", currentPayment);
 
+        const res = await fetch(API_BASE, { method: "POST", body: form });
         const data = await res.json();
 
         if (!data.success) {
@@ -1375,32 +1510,141 @@
         }
 
         alert("Reset done");
-        await loadMemberHistory(state.memberName);
+        await loadMemberOwnHistory(state.memberName);
       } catch (err) {
         console.error(err);
         alert("Reset failed");
       }
     }
 
+    async function resetSpecificMember(name, good, payment) {
+      const ok = confirm("এই member reset করবে?");
+      if (!ok) return;
+
+      try {
+        const form = new URLSearchParams();
+        form.append("action", "resetMember");
+        form.append("name", name);
+        form.append("good", Number(good || 0));
+        form.append("payment", Number(payment || 0));
+
+        const res = await fetch(API_BASE, { method: "POST", body: form });
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || "Reset failed");
+          return;
+        }
+
+        alert("Member reset done");
+        closeModal();
+      } catch (err) {
+        console.error(err);
+        alert("Reset failed");
+      }
+    }
+
+    async function resetSpecificSeller(name, good, payment) {
+      const ok = confirm("এই seller reset করবে?");
+      if (!ok) return;
+
+      try {
+        const form = new URLSearchParams();
+        form.append("action", "resetSeller");
+        form.append("name", name);
+        form.append("good", Number(good || 0));
+        form.append("payment", Number(payment || 0));
+
+        const res = await fetch(API_BASE, { method: "POST", body: form });
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || "Reset failed");
+          return;
+        }
+
+        alert("Seller reset done");
+        closeModal();
+      } catch (err) {
+        console.error(err);
+        alert("Reset failed");
+      }
+    }
+
+    async function exportDataset(exportType) {
+      try {
+        const res = await fetch(`${API_BASE}?action=export&exportType=${encodeURIComponent(exportType)}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || "Export failed");
+          return;
+        }
+
+        downloadExcel(data.fileName || "export", data.rows || []);
+      } catch (err) {
+        console.error(err);
+        alert("Export failed");
+      }
+    }
+
+    async function exportSellerData(exportType) {
+      const seller = document.getElementById("exportSellerSelect").value;
+      if (!seller) {
+        alert("Seller select কর");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}?action=export&exportType=${encodeURIComponent(exportType)}&seller=${encodeURIComponent(seller)}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || "Export failed");
+          return;
+        }
+
+        downloadExcel(data.fileName || "export", data.rows || []);
+      } catch (err) {
+        console.error(err);
+        alert("Export failed");
+      }
+    }
+
+    function downloadExcel(fileName, rows) {
+      const worksheetData = [
+        ["Mail", "Password", "2FA", "Status", "Seller", "Member", "Sheet"]
+      ];
+
+      rows.forEach(item => {
+        worksheetData.push([
+          item.mail || "",
+          item.password || "",
+          item.auth || "",
+          item.status || "",
+          item.seller || "",
+          item.member || "",
+          item.sheet || ""
+        ]);
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
+      XLSX.writeFile(workbook, `${fileName || "export"}.xlsx`);
+    }
+
     function renderRulesByRole() {
       const rateSection = document.getElementById("rateSection");
-      const rulesSection = document.getElementById("rulesSection");
       const sellerPaymentRow = document.getElementById("sellerPaymentRow");
       const historySection = document.getElementById("historySection");
 
       if (state.role === "member") {
         rateSection.classList.add("hidden");
-        rulesSection.classList.add("hidden");
         sellerPaymentRow.style.display = "none";
         historySection.classList.remove("hidden");
-      } else if (state.role === "admin") {
-        rateSection.classList.remove("hidden");
-        rulesSection.classList.add("hidden");
-        sellerPaymentRow.style.display = "flex";
-        historySection.classList.add("hidden");
       } else {
         rateSection.classList.remove("hidden");
-        rulesSection.classList.remove("hidden");
         sellerPaymentRow.style.display = "flex";
         historySection.classList.add("hidden");
       }
@@ -1408,6 +1652,8 @@
 
     function renderDashboardByRole() {
       renderRulesByRole();
+      renderChart();
+      renderRanking();
 
       if (state.role === "member") {
         const memberName = state.memberName;
@@ -1416,8 +1662,6 @@
         };
 
         document.getElementById("topRoleLabel").textContent = `Team Page • ${found.name}`;
-        document.getElementById("heroTitle").textContent = `${found.name} — team member dashboard`;
-        document.getElementById("heroSub").textContent = `নিজের good, problem, payment আর own recent work এখান থেকে দেখা যাবে।`;
 
         renderStats({
           total: Number(found.total || 0),
@@ -1426,51 +1670,46 @@
           sheet1Good: 0,
           otherGood: 0,
           teamPayment: Number(found.payment || 0),
-          sellerPayment: 0,
-          sellerCount: 0,
-          memberCount: 1
+          sellerPayment: 0
         });
 
-        renderList("sheet1SellerList", [], "seller");
-        renderList("otherSellerList", [], "seller");
-        renderList("teamSummaryList", [found], "member");
+        renderSellerList("sheet1SellerList", []);
+        renderSellerList("otherSellerList", []);
+        renderMembers([found]);
 
         const memberRecent = state.recent.filter(r => String(r.member || "").toLowerCase() === memberName.toLowerCase());
         renderRecent(memberRecent);
 
         const memberProblemBreakdown = aggregateProblemFromRows(memberRecent);
-        renderList("problemBreakdownList", memberProblemBreakdown, "problem");
+        renderProblemBreakdown(memberProblemBreakdown);
 
-        loadMemberHistory(state.memberName);
+        loadMemberOwnHistory(state.memberName);
         return;
       }
-
-      document.getElementById("historySection").classList.add("hidden");
 
       if (state.role === "admin") {
         document.getElementById("topRoleLabel").textContent = "Admin Page • Overview Access";
-        document.getElementById("heroTitle").textContent = "Admin dashboard with live seller, member and payment overview.";
-        document.getElementById("heroSub").textContent = "Admin view-তে overview, rate update, seller breakdown, problem breakdown আর team summary দেখা যাবে।";
-
-        renderStats();
-        renderList("sheet1SellerList", state.sellers.sheet1, "seller");
-        renderList("otherSellerList", state.sellers.other, "seller");
-        renderList("teamSummaryList", state.members, "member");
-        renderList("problemBreakdownList", state.problemBreakdown, "problem");
-        renderRecent(state.recent);
-        return;
+      } else {
+        document.getElementById("topRoleLabel").textContent = "Super Admin Page • Full Access";
       }
 
-      document.getElementById("topRoleLabel").textContent = "Super Admin Page • Full Access";
-      document.getElementById("heroTitle").textContent = "Super admin dashboard with full access and control sections.";
-      document.getElementById("heroSub").textContent = "Super admin view-তে সব overview, payment panel, rate panel, rules আর full live data show হবে।";
-
       renderStats();
-      renderList("sheet1SellerList", state.sellers.sheet1, "seller");
-      renderList("otherSellerList", state.sellers.other, "seller");
-      renderList("teamSummaryList", state.members, "member");
-      renderList("problemBreakdownList", state.problemBreakdown, "problem");
+      renderSellerList("sheet1SellerList", state.sellers.sheet1);
+      renderSellerList("otherSellerList", state.sellers.other);
+      renderMembers(state.members);
+      renderProblemBreakdown(state.problemBreakdown);
       renderRecent(state.recent);
+    }
+
+    function aggregateProblemFromRows(rows) {
+      const map = {};
+      rows.forEach(r => {
+        const s = String(r.status || "").trim();
+        if (!s || s.toLowerCase() === "ok") return;
+        if (!map[s]) map[s] = 0;
+        map[s]++;
+      });
+      return Object.keys(map).map(key => ({ name:key, count:map[key] })).sort((a,b)=>b.count-a.count);
     }
 
     async function refreshData() {
@@ -1576,7 +1815,7 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
       const ctx = canvas.getContext("2d");
 
       let w, h, cols, drops, fontSize;
-      const chars = ("01010101 {}[]() => const let var function return fetch async await status ok problem seller member rate payment sheet login admin super team gmail dashboard").split("");
+      const chars = ("01010101 {}[]() => const let var function return fetch async await status ok problem seller member rate payment sheet login admin super team gmail dashboard export history ranking").split("");
 
       function resize() {
         w = canvas.width = window.innerWidth;
@@ -1612,6 +1851,10 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
       resize();
       draw();
       window.addEventListener("resize", resize);
+    }
+
+    function escapeJs(str) {
+      return String(str || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
     }
 
     setupCardClicks();
