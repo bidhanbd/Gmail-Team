@@ -9,19 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#060816;
-      --bg-soft:#0d1328;
-      --card:rgba(16,20,40,.62);
-      --stroke:rgba(255,255,255,.09);
+      --bg:#050816;
+      --card:rgba(12,18,36,.72);
+      --stroke:rgba(255,255,255,.10);
       --text:#f5f7ff;
-      --muted:#aab4d6;
+      --muted:#9ca9cf;
       --blue:#47a7ff;
       --purple:#8a5cff;
       --cyan:#45f3ff;
-      --green:#27e58a;
-      --red:#ff5d7a;
-      --gold:#ffcc66;
-      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --green:#2ee887;
+      --red:#ff5f7d;
+      --gold:#ffc75f;
+      --shadow:0 24px 70px rgba(0,0,0,.38);
       --radius:24px;
     }
 
@@ -31,99 +30,353 @@
       box-sizing:border-box;
     }
 
+    html,body{
+      width:100%;
+      min-height:100%;
+    }
+
     body{
       font-family:"Plus Jakarta Sans",sans-serif;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(71,167,255,.20), transparent 25%),
-        radial-gradient(circle at 90% 15%, rgba(138,92,255,.18), transparent 25%),
-        radial-gradient(circle at 75% 85%, rgba(69,243,255,.14), transparent 20%),
-        linear-gradient(145deg, #050711 0%, #0b1020 45%, #070b16 100%);
       color:var(--text);
-      min-height:100vh;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(71,167,255,.18), transparent 25%),
+        radial-gradient(circle at 88% 16%, rgba(138,92,255,.18), transparent 24%),
+        radial-gradient(circle at 72% 88%, rgba(69,243,255,.10), transparent 18%),
+        linear-gradient(135deg, #03060f 0%, #08101f 42%, #050816 100%);
       overflow-x:hidden;
     }
 
-    body::before{
-      content:"";
+    #codeCanvas{
       position:fixed;
       inset:0;
-      background:
-        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-      background-size:32px 32px;
-      mask-image:linear-gradient(to bottom, rgba(0,0,0,.5), transparent 90%);
+      width:100%;
+      height:100%;
+      z-index:0;
+      opacity:.22;
       pointer-events:none;
-      opacity:.35;
+    }
+
+    .bg-overlay{
+      position:fixed;
+      inset:0;
+      z-index:1;
+      background:
+        linear-gradient(180deg, rgba(3,6,15,.55), rgba(4,8,18,.74)),
+        radial-gradient(circle at 20% 20%, rgba(71,167,255,.08), transparent 25%),
+        radial-gradient(circle at 80% 20%, rgba(138,92,255,.08), transparent 25%);
+      pointer-events:none;
     }
 
     .orb{
       position:fixed;
-      width:320px;
-      height:320px;
+      width:340px;
+      height:340px;
       border-radius:50%;
-      filter:blur(60px);
-      opacity:.22;
+      filter:blur(70px);
+      opacity:.18;
+      z-index:1;
       pointer-events:none;
-      z-index:0;
     }
 
-    .orb.one{ background:var(--blue); top:-80px; left:-80px; }
-    .orb.two{ background:var(--purple); top:20%; right:-100px; }
-    .orb.three{ background:var(--cyan); bottom:-100px; left:20%; }
+    .orb.one{top:-100px;left:-80px;background:var(--blue);}
+    .orb.two{top:18%;right:-120px;background:var(--purple);}
+    .orb.three{bottom:-120px;left:20%;background:var(--cyan);}
 
-    .wrap{
+    .app{
       position:relative;
-      z-index:1;
-      width:min(1380px, calc(100% - 28px));
-      margin:24px auto 40px;
+      z-index:2;
+      width:min(1440px, calc(100% - 24px));
+      margin:18px auto 34px;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    .glass{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .glass::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), transparent 28%);
+      pointer-events:none;
+    }
+
+    .animated-card{
+      transition:transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+      will-change:transform;
+    }
+
+    .animated-card:hover{
+      transform:translateY(-4px) scale(1.01);
+      border-color:rgba(255,255,255,.18);
+      box-shadow:0 30px 80px rgba(0,0,0,.42);
+    }
+
+    .fire-ring{
+      position:relative;
+      isolation:isolate;
+    }
+
+    .fire-ring::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius:inherit;
+      padding:1.5px;
+      background:conic-gradient(from 0deg, transparent, rgba(71,167,255,.95), rgba(138,92,255,.95), rgba(69,243,255,.95), rgba(255,95,125,.95), transparent);
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      opacity:0;
+      filter:drop-shadow(0 0 14px rgba(71,167,255,.28));
+      animation:ringSpin 1.7s linear infinite;
+      z-index:2;
+      pointer-events:none;
+    }
+
+    .fire-ring.active::after{
+      opacity:1;
+    }
+
+    @keyframes ringSpin{
+      to{transform:rotate(360deg);}
+    }
+
+    .btn{
+      border:none;
+      outline:none;
+      cursor:pointer;
+      padding:12px 16px;
+      border-radius:16px;
+      font-weight:800;
+      color:var(--text);
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 10px 25px rgba(0,0,0,.18);
+      transition:.25s ease;
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,.09);
+      border-color:rgba(255,255,255,.16);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(71,167,255,.24), rgba(138,92,255,.24));
+      border-color:rgba(138,180,255,.26);
+    }
+
+    .btn.red{
+      background:linear-gradient(135deg, rgba(255,95,125,.20), rgba(255,120,80,.20));
+    }
+
+    .input, .select{
+      width:100%;
+      padding:14px 15px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(5,10,24,.66);
+      color:#fff;
+      outline:none;
+      font-size:14px;
+    }
+
+    .input::placeholder{
+      color:#8390b6;
+    }
+
+    .page{
+      animation:fadeIn .45s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(10px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+
+    .login-wrap{
+      min-height:calc(100vh - 52px);
+      display:grid;
+      place-items:center;
+      padding:24px 0;
+    }
+
+    .login-shell{
+      width:min(1120px, 100%);
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:18px;
+    }
+
+    .login-left, .login-right{
+      padding:28px;
+    }
+
+    .login-left{
+      min-height:620px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .login-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.05);
+      width:max-content;
+      margin-bottom:18px;
+      font-size:12px;
+      font-weight:800;
+      color:#dfe7ff;
+    }
+
+    .login-title{
+      font-size:clamp(34px, 4vw, 58px);
+      line-height:1.04;
+      font-weight:800;
+      margin-bottom:14px;
+      letter-spacing:-1px;
+      background:linear-gradient(90deg, #fff 0%, #9ad0ff 32%, #c0a8ff 64%, #bdfcff 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      text-shadow:0 0 20px rgba(71,167,255,.18);
+    }
+
+    .login-sub{
+      color:var(--muted);
+      line-height:1.8;
+      max-width:640px;
+      font-size:15px;
+    }
+
+    .feature-grid{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+
+    .feature{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.045);
+    }
+
+    .feature strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+    }
+
+    .feature span{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+
+    .login-right{
+      min-height:620px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .panel-title{
+      font-size:24px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .panel-sub{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:16px;
+    }
+
+    .login-form{
+      display:grid;
+      gap:12px;
+      padding:16px;
+      border-radius:20px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      margin-bottom:16px;
+    }
+
+    .small-note{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+      margin-top:6px;
+    }
+
+    .notice{
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+      color:#dce6ff;
+      font-size:13px;
+      line-height:1.7;
     }
 
     .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
-      padding:18px 20px;
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--stroke);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(20px);
-      margin-bottom:22px;
+      gap:14px;
       flex-wrap:wrap;
+      padding:18px 20px;
+      margin-bottom:18px;
     }
 
     .brand{
       display:flex;
       align-items:center;
       gap:14px;
-      min-width:0;
     }
 
     .brand-badge{
       width:54px;
       height:54px;
       border-radius:18px;
-      background:linear-gradient(145deg, rgba(71,167,255,.28), rgba(138,92,255,.22));
-      border:1px solid rgba(255,255,255,.10);
       display:grid;
       place-items:center;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 10px 30px rgba(71,167,255,.18);
       font-size:24px;
+      background:linear-gradient(145deg, rgba(71,167,255,.22), rgba(138,92,255,.24));
+      border:1px solid rgba(255,255,255,.10);
     }
 
-    .brand-text h1{
+    .brand h1{
       font-size:clamp(22px, 2vw, 30px);
       font-weight:800;
       line-height:1.1;
-      background:linear-gradient(90deg,#ffffff 0%, #97c8ff 35%, #b99cff 65%, #c9faff 100%);
+      margin-bottom:4px;
+      background:linear-gradient(90deg, #fff 0%, #9dd0ff 35%, #bcabff 68%, #bdfdff 100%);
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
-      text-shadow:0 0 20px rgba(113,166,255,.25);
     }
 
-    .brand-text p{
-      margin-top:5px;
+    .brand p{
       color:var(--muted);
       font-size:13px;
     }
@@ -134,53 +387,9 @@
       flex-wrap:wrap;
     }
 
-    .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      padding:12px 16px;
-      border-radius:16px;
-      font-weight:700;
-      color:var(--text);
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      transition:.25s ease;
-      box-shadow:0 10px 25px rgba(0,0,0,.18);
-    }
-
-    .btn:hover{
-      transform:translateY(-2px);
-      border-color:rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-    }
-
-    .btn.primary{
-      background:linear-gradient(135deg, rgba(71,167,255,.22), rgba(138,92,255,.24));
-      border:1px solid rgba(140,180,255,.24);
-      box-shadow:0 12px 30px rgba(85,133,255,.18);
-    }
-
-    .glass{
-      background:var(--card);
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(18px);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .glass::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 28%);
-      pointer-events:none;
-    }
-
     .hero{
       display:grid;
-      grid-template-columns:1.25fr .75fr;
+      grid-template-columns:1.15fr .85fr;
       gap:18px;
       margin-bottom:18px;
     }
@@ -195,8 +404,8 @@
 
     .chip-row{
       display:flex;
-      flex-wrap:wrap;
       gap:10px;
+      flex-wrap:wrap;
       margin-bottom:18px;
     }
 
@@ -207,22 +416,23 @@
       border:1px solid rgba(255,255,255,.08);
       color:#dce6ff;
       font-size:12px;
-      font-weight:700;
+      font-weight:800;
     }
 
     .hero-main h2{
-      font-size:clamp(28px, 3vw, 42px);
-      line-height:1.08;
+      font-size:clamp(28px, 3.4vw, 44px);
+      line-height:1.06;
       font-weight:800;
-      max-width:740px;
+      letter-spacing:-.8px;
       margin-bottom:12px;
+      max-width:800px;
     }
 
     .hero-main p{
       color:var(--muted);
-      max-width:760px;
-      line-height:1.7;
       font-size:14px;
+      line-height:1.8;
+      max-width:760px;
     }
 
     .hero-side{
@@ -246,56 +456,65 @@
     .mini-stat span{
       color:var(--muted);
       font-size:13px;
-      font-weight:600;
+      font-weight:700;
     }
 
     .mini-stat strong{
-      font-size:20px;
+      font-size:22px;
       font-weight:800;
-      color:#fff;
     }
 
     .stats-grid{
       display:grid;
-      grid-template-columns:repeat(4, 1fr);
+      grid-template-columns:repeat(4,1fr);
       gap:16px;
       margin-bottom:18px;
     }
 
     .stat-card{
       padding:22px;
-      min-height:152px;
+      min-height:160px;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
+      animation:cardPulse 5s ease-in-out infinite;
+    }
+
+    .stat-card:nth-child(2){animation-delay:.6s;}
+    .stat-card:nth-child(3){animation-delay:1.2s;}
+    .stat-card:nth-child(4){animation-delay:1.8s;}
+
+    @keyframes cardPulse{
+      0%,100%{transform:translateY(0);}
+      50%{transform:translateY(-2px);}
     }
 
     .stat-top{
       display:flex;
       justify-content:space-between;
       align-items:flex-start;
-      gap:14px;
+      gap:12px;
     }
 
     .label{
       color:var(--muted);
       font-size:13px;
-      font-weight:700;
+      font-weight:800;
     }
 
     .icon{
-      width:44px;
-      height:44px;
-      border-radius:15px;
+      width:48px;
+      height:48px;
       display:grid;
       place-items:center;
-      font-size:18px;
+      font-size:20px;
+      border-radius:16px;
+      background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.05);
     }
 
     .stat-value{
-      font-size:38px;
+      font-size:40px;
       font-weight:800;
       letter-spacing:-1px;
     }
@@ -303,10 +522,10 @@
     .stat-bottom{
       display:flex;
       justify-content:space-between;
-      align-items:center;
-      gap:10px;
+      gap:12px;
       color:var(--muted);
       font-size:12px;
+      line-height:1.5;
     }
 
     .content-grid{
@@ -358,57 +577,52 @@
       margin-bottom:14px;
     }
 
-    .seller-list{
+    .list{
       display:grid;
       gap:10px;
     }
 
-    .seller-item{
-      padding:12px 14px;
+    .item{
+      padding:13px 14px;
       border-radius:16px;
       background:rgba(255,255,255,.045);
       border:1px solid rgba(255,255,255,.06);
       display:grid;
       grid-template-columns:1fr auto;
-      gap:10px;
+      gap:12px;
       align-items:center;
     }
 
-    .seller-left{
-      min-width:0;
-    }
-
-    .seller-name{
+    .item-name{
       font-size:14px;
-      font-weight:700;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      font-weight:800;
+      margin-bottom:4px;
+      line-height:1.4;
+      word-break:break-word;
     }
 
-    .seller-sub{
+    .item-sub{
       color:var(--muted);
       font-size:12px;
-      margin-top:4px;
-      line-height:1.5;
+      line-height:1.6;
+      word-break:break-word;
     }
 
-    .seller-count{
+    .item-side{
       display:flex;
-      align-items:center;
       gap:8px;
-      font-size:13px;
-      color:#ecf3ff;
-      font-weight:700;
       flex-wrap:wrap;
       justify-content:flex-end;
+      align-items:center;
     }
 
     .pill{
       padding:7px 10px;
       border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.07);
       white-space:nowrap;
     }
 
@@ -420,15 +634,21 @@
     .payment-box{
       padding:18px;
       border-radius:20px;
-      background:linear-gradient(145deg, rgba(71,167,255,.12), rgba(138,92,255,.12));
+      background:linear-gradient(145deg, rgba(71,167,255,.12), rgba(138,92,255,.14));
       border:1px solid rgba(255,255,255,.08);
       margin-bottom:14px;
     }
 
+    .payment-box .small{
+      color:var(--muted);
+      font-size:13px;
+    }
+
     .payment-box .big{
-      font-size:30px;
+      font-size:32px;
       font-weight:800;
       margin-top:8px;
+      letter-spacing:-.8px;
     }
 
     .kv{
@@ -445,17 +665,17 @@
       border-radius:16px;
       background:rgba(255,255,255,.045);
       border:1px solid rgba(255,255,255,.06);
-      font-size:14px;
     }
 
     .kv-row span{
       color:var(--muted);
+      font-size:13px;
+      font-weight:700;
     }
 
     .kv-row strong{
       font-size:14px;
       font-weight:800;
-      text-align:right;
     }
 
     .panel{
@@ -470,33 +690,19 @@
       gap:10px;
     }
 
-    .input{
-      width:100%;
-      padding:13px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(6,10,24,.65);
-      color:#fff;
-      outline:none;
-    }
-
-    .input::placeholder{
-      color:#8390b6;
-    }
-
     .panel-actions{
       display:flex;
       gap:10px;
-      margin-top:12px;
       flex-wrap:wrap;
+      margin-top:12px;
     }
 
     .table-wrap{
       margin-top:14px;
       border-radius:20px;
-      overflow:hidden;
       border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.04);
+      overflow:hidden;
     }
 
     table{
@@ -509,12 +715,13 @@
       text-align:left;
       font-size:13px;
       border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:top;
     }
 
     th{
-      color:#dbe6ff;
-      font-weight:800;
       background:rgba(255,255,255,.04);
+      color:#dce6ff;
+      font-weight:800;
     }
 
     td{
@@ -537,53 +744,71 @@
     }
 
     .good{
-      background:rgba(39,229,138,.15);
-      color:#79ffbc;
-      border:1px solid rgba(39,229,138,.18);
+      background:rgba(46,232,135,.16);
+      color:#80ffc0;
+      border:1px solid rgba(46,232,135,.22);
     }
 
     .problem{
-      background:rgba(255,93,122,.15);
-      color:#ff9eb0;
-      border:1px solid rgba(255,93,122,.18);
+      background:rgba(255,95,125,.16);
+      color:#ffacbb;
+      border:1px solid rgba(255,95,125,.22);
     }
 
     .other{
-      background:rgba(255,204,102,.15);
+      background:rgba(255,199,95,.14);
       color:#ffd98b;
-      border:1px solid rgba(255,204,102,.18);
+      border:1px solid rgba(255,199,95,.20);
     }
 
-    .footer-note{
-      text-align:center;
-      margin-top:18px;
-      color:#8c98bf;
+    .rules-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+
+    .rule-box{
+      padding:16px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.045);
+    }
+
+    .rule-box strong{
+      display:block;
+      margin-bottom:7px;
+      font-size:14px;
+    }
+
+    .rule-box span{
+      color:var(--muted);
       font-size:12px;
-      opacity:.9;
+      line-height:1.7;
     }
 
     @media (max-width: 1180px){
+      .login-shell,
       .hero,
       .content-grid{
         grid-template-columns:1fr;
       }
 
       .stats-grid{
-        grid-template-columns:repeat(2, 1fr);
+        grid-template-columns:repeat(2,1fr);
       }
     }
 
     @media (max-width: 760px){
-      .wrap{
-        width:min(100% - 16px, 1380px);
-        margin:16px auto 28px;
+      .app{
+        width:min(100% - 14px, 1440px);
+        margin:14px auto 24px;
       }
 
-      .stats-grid{
-        grid-template-columns:1fr;
+      .login-left,.login-right,.section,.hero-main,.hero-side{
+        padding:18px;
       }
 
-      .breakdown-shell{
+      .feature-grid,.rules-grid,.breakdown-shell,.stats-grid{
         grid-template-columns:1fr;
       }
 
@@ -591,7 +816,7 @@
         font-size:32px;
       }
 
-      th, td{
+      th,td{
         padding:12px;
         font-size:12px;
       }
@@ -603,231 +828,329 @@
   </style>
 </head>
 <body>
+  <canvas id="codeCanvas"></canvas>
+  <div class="bg-overlay"></div>
   <div class="orb one"></div>
   <div class="orb two"></div>
   <div class="orb three"></div>
 
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="brand-badge">✦</div>
-        <div class="brand-text">
-          <h1>Gmail Team Pro</h1>
-          <p>Premium live dashboard for mails, seller overview, team performance and payment tracking</p>
-        </div>
-      </div>
+  <div class="app">
+    <section id="loginPage" class="page login-wrap">
+      <div class="login-shell">
+        <div class="glass animated-card login-left fire-ring clickable-card">
+          <div>
+            <div class="login-badge">✦ Animated Secure Entry</div>
+            <div class="login-title">Gmail Team Pro</div>
+            <div class="login-sub">
+              One password login. Team member হলে নিজের নামটাই password. Admin আর Super Admin-এর জন্য আলাদা password.
+            </div>
 
-      <div class="top-actions">
-        <button class="btn" onclick="refreshData()">Refresh</button>
-        <button class="btn primary" onclick="copySummary()">Copy Summary</button>
-      </div>
-    </div>
-
-    <div class="hero">
-      <div class="glass hero-main">
-        <div>
-          <div class="chip-row">
-            <div class="chip">Live Sheet Sync</div>
-            <div class="chip">Seller + Member Breakdown</div>
-            <div class="chip">Auto Payment Calculate</div>
-          </div>
-          <h2>One clean dashboard for total mails, seller activity, team result and payment view.</h2>
-          <p>
-            Live Google Sheet data will load here. Payment will calculate automatically from Good count and your fixed rates entered on the website.
-          </p>
-        </div>
-      </div>
-
-      <div class="glass hero-side">
-        <div class="mini-stat">
-          <span>Last Updated</span>
-          <strong id="lastUpdated">--</strong>
-        </div>
-        <div class="mini-stat">
-          <span>Total Sellers</span>
-          <strong id="sellerCount">0</strong>
-        </div>
-        <div class="mini-stat">
-          <span>Total Members</span>
-          <strong id="memberCount">0</strong>
-        </div>
-      </div>
-    </div>
-
-    <div class="stats-grid">
-      <div class="glass stat-card">
-        <div class="stat-top">
-          <div class="label">Total Mails</div>
-          <div class="icon">📨</div>
-        </div>
-        <div class="stat-value" id="totalMails">0</div>
-        <div class="stat-bottom">
-          <span>All sheets combined</span>
-          <span id="totalMailsSub">Live count</span>
-        </div>
-      </div>
-
-      <div class="glass stat-card">
-        <div class="stat-top">
-          <div class="label">Good</div>
-          <div class="icon">✅</div>
-        </div>
-        <div class="stat-value" id="goodMails">0</div>
-        <div class="stat-bottom">
-          <span>Successful entries</span>
-          <span id="goodRate">0%</span>
-        </div>
-      </div>
-
-      <div class="glass stat-card">
-        <div class="stat-top">
-          <div class="label">Problem</div>
-          <div class="icon">⚠️</div>
-        </div>
-        <div class="stat-value" id="problemMails">0</div>
-        <div class="stat-bottom">
-          <span>Need review</span>
-          <span id="problemRate">0%</span>
-        </div>
-      </div>
-
-      <div class="glass stat-card">
-        <div class="stat-top">
-          <div class="label">Team Payment</div>
-          <div class="icon">💸</div>
-        </div>
-        <div class="stat-value" id="totalPayment">0</div>
-        <div class="stat-bottom">
-          <span>Good × Team Rate</span>
-          <span id="paymentMode">Auto calc</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="content-grid">
-      <div class="left-stack">
-        <div class="glass section">
-          <div class="section-head">
-            <div>
-              <h3>Seller Breakdown</h3>
-              <p>Sheet1 and Other Sheets breakdown inside the same section</p>
+            <div class="feature-grid">
+              <div class="feature">
+                <strong>Single Password Login</strong>
+                <span>Username লাগবে না। শুধু password দিয়েই role detect হবে।</span>
+              </div>
+              <div class="feature">
+                <strong>Role Based Access</strong>
+                <span>Team Member, Admin, Super Admin আলাদা view পাবে।</span>
+              </div>
+              <div class="feature">
+                <strong>Problem Breakdown</strong>
+                <span>যে status যতবার আছে, pcs হিসেব show করবে।</span>
+              </div>
+              <div class="feature">
+                <strong>Live Coding Background</strong>
+                <span>Animated background থাকবে, কিন্তু content clear দেখা যাবে।</span>
+              </div>
             </div>
           </div>
 
-          <div class="breakdown-shell">
-            <div class="break-card">
-              <h4>Sheet1 Seller Breakdown</h4>
-              <div class="seller-list" id="sheet1SellerList"></div>
-            </div>
-
-            <div class="break-card">
-              <h4>Other Sheets Seller Breakdown</h4>
-              <div class="seller-list" id="otherSellerList"></div>
-            </div>
+          <div class="notice">
+            Status rule: <strong>ok = good</strong>, <strong>ok ছাড়া সব status = problem</strong>.
           </div>
         </div>
 
-        <div class="glass section">
-          <div class="section-head">
-            <div>
-              <h3>Recent Mail Status</h3>
-              <p>Latest live rows from sheet</p>
+        <div class="glass animated-card login-right fire-ring clickable-card">
+          <div class="panel-title">Enter Access Password</div>
+          <div class="panel-sub">একটাই login page সবার জন্য</div>
+
+          <div class="login-form">
+            <input id="loginPassword" class="input" type="password" placeholder="Enter password">
+            <button class="btn primary" id="loginBtn">Login</button>
+            <div class="small-note">
+              Team member হলে password = Team Member column-এর নাম<br>
+              Admin password = <strong>admin@555</strong><br>
+              Super Admin password = <strong>super@2024</strong>
             </div>
           </div>
 
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Mail</th>
-                  <th>Seller</th>
-                  <th>Team Member</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="recentTable"></tbody>
-            </table>
+          <div id="loginMessage" class="notice">Loading members...</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboardPage" class="page hidden">
+      <div class="glass animated-card topbar fire-ring clickable-card">
+        <div class="brand">
+          <div class="brand-badge">✦</div>
+          <div>
+            <h1>Gmail Team Pro</h1>
+            <p id="topRoleLabel">Premium live dashboard</p>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <button class="btn" onclick="refreshData()">Refresh</button>
+          <button class="btn" onclick="copySummary()">Copy Summary</button>
+          <button class="btn red" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="glass animated-card hero-main fire-ring clickable-card">
+          <div>
+            <div class="chip-row">
+              <div class="chip">Live Sheet Sync</div>
+              <div class="chip">Problem Breakdown</div>
+              <div class="chip">Animated Premium UI</div>
+            </div>
+            <h2 id="heroTitle">One clean dashboard for total mails, seller activity, team result and payment view.</h2>
+            <p id="heroSub">Live Google Sheet data will load here. Payment will calculate automatically from Good count and the fixed rates entered on the website.</p>
+          </div>
+        </div>
+
+        <div class="glass animated-card hero-side fire-ring clickable-card">
+          <div class="mini-stat">
+            <span>Last Updated</span>
+            <strong id="lastUpdated">--</strong>
+          </div>
+          <div class="mini-stat">
+            <span>Total Sellers</span>
+            <strong id="sellerCount">0</strong>
+          </div>
+          <div class="mini-stat">
+            <span>Total Members</span>
+            <strong id="memberCount">0</strong>
           </div>
         </div>
       </div>
 
-      <div class="right-stack">
-        <div class="glass section">
-          <div class="section-head">
-            <div>
-              <h3>Payment Panel</h3>
-              <p>Calculated from Good and fixed rate</p>
-            </div>
+      <div class="stats-grid">
+        <div class="glass animated-card stat-card fire-ring clickable-card">
+          <div class="stat-top">
+            <div class="label">Total Mails</div>
+            <div class="icon">📨</div>
           </div>
-
-          <div class="payment-box">
-            <div style="color:var(--muted)">Current Team Payment</div>
-            <div class="big" id="paymentBig">0</div>
-          </div>
-
-          <div class="kv">
-            <div class="kv-row">
-              <span>Sheet1 Good</span>
-              <strong id="sheet1Good">0</strong>
-            </div>
-            <div class="kv-row">
-              <span>Other Sheets Good</span>
-              <strong id="otherGood">0</strong>
-            </div>
-            <div class="kv-row">
-              <span>Team Rate</span>
-              <strong id="teamRateView">0</strong>
-            </div>
-            <div class="kv-row">
-              <span>Total Seller Payment</span>
-              <strong id="sellerPaymentView">0</strong>
-            </div>
+          <div class="stat-value" id="totalMails">0</div>
+          <div class="stat-bottom">
+            <span>All rows combined</span>
+            <span>Live count</span>
           </div>
         </div>
 
-        <div class="glass section">
-          <div class="section-head">
-            <div>
-              <h3>Rate Update</h3>
-              <p>Optional quick calculator</p>
-            </div>
+        <div class="glass animated-card stat-card fire-ring clickable-card">
+          <div class="stat-top">
+            <div class="label">Good</div>
+            <div class="icon">✅</div>
           </div>
-
-          <div class="panel">
-            <div class="input-group">
-              <input id="teamRateInput" class="input" type="number" placeholder="Team Member Rate">
-              <select id="sellerSelect" class="input" onchange="fillSellerRateInput()"></select>
-              <input id="sellerRateInput" class="input" type="number" placeholder="Selected Seller Rate">
-            </div>
-
-            <div class="panel-actions">
-              <button class="btn primary" onclick="applyRates()">Apply</button>
-            </div>
+          <div class="stat-value" id="goodMails">0</div>
+          <div class="stat-bottom">
+            <span>Status = ok</span>
+            <span id="goodRate">0%</span>
           </div>
         </div>
 
-        <div class="glass section">
-          <div class="section-head">
-            <div>
-              <h3>Team Summary</h3>
-              <p>Member wise live performance</p>
-            </div>
+        <div class="glass animated-card stat-card fire-ring clickable-card">
+          <div class="stat-top">
+            <div class="label">Problem</div>
+            <div class="icon">⚠️</div>
           </div>
+          <div class="stat-value" id="problemMails">0</div>
+          <div class="stat-bottom">
+            <span>ok ছাড়া সব</span>
+            <span id="problemRate">0%</span>
+          </div>
+        </div>
 
-          <div class="seller-list" id="teamSummaryList"></div>
+        <div class="glass animated-card stat-card fire-ring clickable-card">
+          <div class="stat-top">
+            <div class="label">Team Payment</div>
+            <div class="icon">💸</div>
+          </div>
+          <div class="stat-value" id="totalPayment">0</div>
+          <div class="stat-bottom">
+            <span>Good × Member Rate</span>
+            <span>Auto calc</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="footer-note">
-      Premium UI redesign keeping the same project name.
-    </div>
+      <div class="content-grid">
+        <div class="left-stack">
+          <div class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Seller Breakdown</h3>
+                <p>Sheet1 and other sheets inside the same section</p>
+              </div>
+            </div>
+
+            <div class="breakdown-shell">
+              <div class="break-card">
+                <h4>Sheet1 Seller Breakdown</h4>
+                <div class="list" id="sheet1SellerList"></div>
+              </div>
+
+              <div class="break-card">
+                <h4>Other Sheets Seller Breakdown</h4>
+                <div class="list" id="otherSellerList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Problem Breakdown</h3>
+                <p>Which problem status how many pcs</p>
+              </div>
+            </div>
+            <div class="list" id="problemBreakdownList"></div>
+          </div>
+
+          <div class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Recent Mail Status</h3>
+                <p>Latest live rows from sheet</p>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mail</th>
+                    <th>Seller</th>
+                    <th>Team Member</th>
+                    <th>Status</th>
+                    <th>Sheet</th>
+                  </tr>
+                </thead>
+                <tbody id="recentTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-stack">
+          <div class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Payment Panel</h3>
+                <p>Calculated from Good and fixed rate</p>
+              </div>
+            </div>
+
+            <div class="payment-box">
+              <div class="small">Current Team Payment</div>
+              <div class="big" id="paymentBig">0</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-row">
+                <span>Sheet1 Good</span>
+                <strong id="sheet1Good">0</strong>
+              </div>
+              <div class="kv-row">
+                <span>Other Sheets Good</span>
+                <strong id="otherGood">0</strong>
+              </div>
+              <div class="kv-row">
+                <span>Member Rate</span>
+                <strong id="teamRateView">0</strong>
+              </div>
+              <div class="kv-row">
+                <span>Total Seller Payment</span>
+                <strong id="sellerPaymentView">0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div id="rateSection" class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Rate Update</h3>
+                <p>One member rate + seller wise rate</p>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="input-group">
+                <input id="teamRateInput" class="input" type="number" placeholder="Member Rate">
+                <select id="sellerSelect" class="select" onchange="fillSellerRateInput()"></select>
+                <input id="sellerRateInput" class="input" type="number" placeholder="Selected Seller Rate">
+              </div>
+
+              <div class="panel-actions">
+                <button class="btn primary" onclick="applyRates()">Apply Rates</button>
+              </div>
+
+              <div class="small-note">সব member-এর rate same. Seller rate আলাদা আলাদা set করা যাবে.</div>
+            </div>
+          </div>
+
+          <div class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Team Summary</h3>
+                <p>Member wise live performance</p>
+              </div>
+            </div>
+            <div class="list" id="teamSummaryList"></div>
+          </div>
+
+          <div id="rulesSection" class="glass animated-card section fire-ring clickable-card">
+            <div class="section-head">
+              <div>
+                <h3>Rules & Access</h3>
+                <p>Role-based system notes</p>
+              </div>
+            </div>
+
+            <div class="rules-grid">
+              <div class="rule-box">
+                <strong>Status Rule</strong>
+                <span><b>ok</b> good count হবে। ok ছাড়া সব status problem count হবে।</span>
+              </div>
+              <div class="rule-box">
+                <strong>Member Rule</strong>
+                <span>Team Member column-এর inputted name-ই member name হিসেবে ধরা হবে।</span>
+              </div>
+              <div class="rule-box">
+                <strong>Payment Rule</strong>
+                <span>Member payment = good × member fixed rate. Seller payment = good × seller rate.</span>
+              </div>
+              <div class="rule-box">
+                <strong>Access Rule</strong>
+                <span>Team member শুধু নিজের data. Admin full overview. Super admin full access.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbx_0oHsllq3nYX9OVSgVvx5ddiMBtD390i5RWpBeEqXcOXd6LT1T3E3lGERdDVYTzFq/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwdmSLfhzhD1KL3zNRFn7EJ8zdQNNy_dgTSx89XZkkjTWl8mbTtzcRfdgQdG2eze8E/exec?action=dashboard";
+    const ADMIN_PASSWORD = "admin@555";
+    const SUPER_ADMIN_PASSWORD = "super@2024";
 
     const state = {
+      rawData: null,
+      role: null,
+      memberName: null,
       stats: {
         total: 0,
         good: 0,
@@ -845,7 +1168,9 @@
       members: [],
       recent: [],
       teamRate: 0,
-      sellerRates: {}
+      sellerRates: {},
+      problemBreakdown: [],
+      memberNames: []
     };
 
     function formatNumber(num) {
@@ -866,7 +1191,17 @@
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function setupCardClicks() {
+      document.addEventListener("click", (e) => {
+        const card = e.target.closest(".clickable-card");
+        if (!card) return;
+        card.classList.add("active");
+        setTimeout(() => card.classList.remove("active"), 1600);
+      });
     }
 
     function saveRatesToLocal() {
@@ -875,16 +1210,71 @@
     }
 
     function loadRatesFromLocal() {
-      const teamRate = Number(localStorage.getItem("gmailTeamPro_teamRate") || 0);
-      const sellerRates = JSON.parse(localStorage.getItem("gmailTeamPro_sellerRates") || "{}");
-
-      state.teamRate = teamRate;
-      state.sellerRates = sellerRates;
+      state.teamRate = Number(localStorage.getItem("gmailTeamPro_teamRate") || 0);
+      state.sellerRates = JSON.parse(localStorage.getItem("gmailTeamPro_sellerRates") || "{}");
 
       const teamRateInput = document.getElementById("teamRateInput");
-      if (teamRateInput) {
-        teamRateInput.value = teamRate || "";
+      if (teamRateInput) teamRateInput.value = state.teamRate || "";
+    }
+
+    function mapApiToState(data) {
+      state.rawData = data;
+
+      state.stats.total = Number(data.totalMails || 0);
+      state.stats.good = Number(data.goodMails || 0);
+      state.stats.problem = Number(data.problemMails || 0);
+      state.stats.other = Number(data.otherMails || 0);
+      state.stats.sheet1Good = Number(data.sheet1Good || 0);
+      state.stats.otherGood = Number(data.otherGood || 0);
+
+      state.sellers.sheet1 = Array.isArray(data.sheet1SellerBreakdown) ? data.sheet1SellerBreakdown : [];
+      state.sellers.other = Array.isArray(data.otherSellerBreakdown) ? data.otherSellerBreakdown : [];
+      state.members = Array.isArray(data.teamMembers) ? data.teamMembers : [];
+      state.recent = Array.isArray(data.recentRecords) ? data.recentRecords.slice(0, 15) : [];
+      state.problemBreakdown = Array.isArray(data.problemBreakdown) ? data.problemBreakdown : [];
+      state.memberNames = Array.isArray(data.memberNames) ? data.memberNames : [];
+
+      const msg = document.getElementById("loginMessage");
+      if (msg) {
+        msg.textContent = state.memberNames.length
+          ? "Members loaded. You can login now."
+          : "No team member found in sheet.";
       }
+
+      populateSellerSelect();
+      recalculatePayments();
+    }
+
+    function populateSellerSelect() {
+      const select = document.getElementById("sellerSelect");
+      const allSellers = [...state.sellers.sheet1, ...state.sellers.other];
+      const uniqueNames = [...new Set(allSellers.map(s => s.name).filter(Boolean))];
+
+      select.innerHTML = uniqueNames.length
+        ? uniqueNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")
+        : `<option value="">No Seller</option>`;
+
+      if (uniqueNames.length) fillSellerRateInput();
+    }
+
+    function fillSellerRateInput() {
+      const seller = document.getElementById("sellerSelect").value;
+      document.getElementById("sellerRateInput").value = state.sellerRates[seller] || 0;
+    }
+
+    function applyRates() {
+      state.teamRate = Number(document.getElementById("teamRateInput").value || 0);
+
+      const seller = document.getElementById("sellerSelect").value;
+      const sellerRate = Number(document.getElementById("sellerRateInput").value || 0);
+
+      if (seller) {
+        state.sellerRates[seller] = sellerRate;
+      }
+
+      saveRatesToLocal();
+      recalculatePayments();
+      renderDashboardByRole();
     }
 
     function recalculatePayments() {
@@ -920,192 +1310,207 @@
         .reduce((sum, item) => sum + Number(item.payment || 0), 0);
     }
 
-    function populateSellerSelect() {
-      const select = document.getElementById("sellerSelect");
-      const allSellers = [...state.sellers.sheet1, ...state.sellers.other];
-      const uniqueNames = [...new Set(allSellers.map(s => s.name).filter(Boolean))];
-
-      select.innerHTML = uniqueNames.length
-        ? uniqueNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")
-        : `<option value="">No Seller</option>`;
-
-      if (uniqueNames.length) {
-        fillSellerRateInput();
-      }
-    }
-
-    function fillSellerRateInput() {
-      const seller = document.getElementById("sellerSelect").value;
-      document.getElementById("sellerRateInput").value = state.sellerRates[seller] || 0;
-    }
-
-    function applyRates() {
-      state.teamRate = Number(document.getElementById("teamRateInput").value || 0);
-
-      const seller = document.getElementById("sellerSelect").value;
-      const sellerRate = Number(document.getElementById("sellerRateInput").value || 0);
-
-      if (seller) {
-        state.sellerRates[seller] = sellerRate;
-      }
-
-      saveRatesToLocal();
-      recalculatePayments();
-      renderAll();
-    }
-
-    function mapApiToState(data) {
-      state.stats.total = Number(data.totalMails || 0);
-      state.stats.good = Number(data.goodMails || 0);
-      state.stats.problem = Number(data.problemMails || 0);
-      state.stats.other = Number(data.otherMails || 0);
-      state.stats.sheet1Good = Number(data.sheet1Good || 0);
-      state.stats.otherGood = Number(data.otherGood || 0);
-
-      state.sellers.sheet1 = Array.isArray(data.sheet1SellerBreakdown) ? data.sheet1SellerBreakdown : [];
-      state.sellers.other = Array.isArray(data.otherSellerBreakdown) ? data.otherSellerBreakdown : [];
-      state.members = Array.isArray(data.teamMembers) ? data.teamMembers : [];
-      state.recent = Array.isArray(data.recentRecords) ? data.recentRecords.slice(0, 8) : [];
-
-      populateSellerSelect();
-      recalculatePayments();
-    }
-
-    function renderStats() {
-      document.getElementById("totalMails").textContent = formatNumber(state.stats.total);
-      document.getElementById("goodMails").textContent = formatNumber(state.stats.good);
-      document.getElementById("problemMails").textContent = formatNumber(state.stats.problem);
-      document.getElementById("totalPayment").textContent = formatCurrency(state.stats.totalTeamPayment);
-      document.getElementById("paymentBig").textContent = formatCurrency(state.stats.totalTeamPayment);
-
-      document.getElementById("goodRate").textContent = percent(state.stats.good, state.stats.total);
-      document.getElementById("problemRate").textContent = percent(state.stats.problem, state.stats.total);
-      document.getElementById("sheet1Good").textContent = formatNumber(state.stats.sheet1Good);
-      document.getElementById("otherGood").textContent = formatNumber(state.stats.otherGood);
-      document.getElementById("teamRateView").textContent = formatNumber(state.teamRate);
-      document.getElementById("sellerPaymentView").textContent = formatCurrency(state.stats.totalSellerPayment);
-      document.getElementById("sellerCount").textContent = formatNumber([...state.sellers.sheet1, ...state.sellers.other].length);
-      document.getElementById("memberCount").textContent = formatNumber(state.members.length);
-
-      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
+    function aggregateProblemFromRows(rows) {
+      const map = {};
+      rows.forEach(r => {
+        const s = String(r.status || "").trim();
+        if (!s || s.toLowerCase() === "ok") return;
+        if (!map[s]) map[s] = 0;
+        map[s]++;
       });
+      return Object.keys(map).map(key => ({ name:key, count:map[key] })).sort((a,b)=>b.count-a.count);
     }
 
-    function renderSellerList(targetId, items) {
+    function renderStats(customStats = null) {
+      const s = customStats || state.stats;
+      document.getElementById("totalMails").textContent = formatNumber(s.total || 0);
+      document.getElementById("goodMails").textContent = formatNumber(s.good || 0);
+      document.getElementById("problemMails").textContent = formatNumber(s.problem || 0);
+      document.getElementById("totalPayment").textContent = formatCurrency(s.teamPayment || state.stats.totalTeamPayment);
+      document.getElementById("paymentBig").textContent = formatCurrency(s.teamPayment || state.stats.totalTeamPayment);
+      document.getElementById("goodRate").textContent = percent(s.good || 0, s.total || 0);
+      document.getElementById("problemRate").textContent = percent(s.problem || 0, s.total || 0);
+      document.getElementById("sheet1Good").textContent = formatNumber(s.sheet1Good || 0);
+      document.getElementById("otherGood").textContent = formatNumber(s.otherGood || 0);
+      document.getElementById("teamRateView").textContent = formatNumber(state.teamRate);
+      document.getElementById("sellerPaymentView").textContent = formatCurrency(s.sellerPayment || state.stats.totalSellerPayment);
+      document.getElementById("sellerCount").textContent = formatNumber((s.sellerCount != null) ? s.sellerCount : [...state.sellers.sheet1, ...state.sellers.other].length);
+      document.getElementById("memberCount").textContent = formatNumber((s.memberCount != null) ? s.memberCount : state.members.length);
+      document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+    }
+
+    function renderList(targetId, items, mode = "seller") {
       const target = document.getElementById(targetId);
 
-      if (!items.length) {
+      if (!items || !items.length) {
         target.innerHTML = `
-          <div class="seller-item">
-            <div class="seller-left">
-              <div class="seller-name">No data</div>
-              <div class="seller-sub">Nothing available right now</div>
+          <div class="item">
+            <div>
+              <div class="item-name">No data</div>
+              <div class="item-sub">Nothing available right now</div>
             </div>
-            <div class="seller-count"><span class="pill">0 total</span></div>
+            <div class="item-side"><span class="pill">0</span></div>
           </div>
         `;
         return;
       }
 
-      target.innerHTML = items.map(item => `
-        <div class="seller-item">
-          <div class="seller-left">
-            <div class="seller-name">${escapeHtml(item.name || "Unknown Seller")}</div>
-            <div class="seller-sub">
-              Good: ${formatNumber(item.good || 0)} •
-              Problem: ${formatNumber(item.problem || 0)} •
-              Rate: ${formatNumber(item.rate || 0)} •
-              Payment: ${formatCurrency(item.payment || 0)}
+      if (mode === "seller") {
+        target.innerHTML = items.map(item => `
+          <div class="item">
+            <div>
+              <div class="item-name">${escapeHtml(item.name || "Unknown Seller")}</div>
+              <div class="item-sub">
+                Good: ${formatNumber(item.good || 0)} •
+                Problem: ${formatNumber(item.problem || 0)} •
+                Rate: ${formatNumber(item.rate || 0)} •
+                Payment: ${formatCurrency(item.payment || 0)}
+              </div>
+            </div>
+            <div class="item-side">
+              <span class="pill">${formatNumber(item.total || 0)} total</span>
             </div>
           </div>
-          <div class="seller-count">
-            <span class="pill">${formatNumber(item.total || 0)} total</span>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderMembers() {
-      const target = document.getElementById("teamSummaryList");
-
-      if (!state.members.length) {
-        target.innerHTML = `
-          <div class="seller-item">
-            <div class="seller-left">
-              <div class="seller-name">No member data</div>
-              <div class="seller-sub">Nothing available right now</div>
-            </div>
-            <div class="seller-count"><span class="pill">0 good</span></div>
-          </div>
-        `;
-        return;
+        `).join("");
       }
 
-      target.innerHTML = state.members.map(member => `
-        <div class="seller-item">
-          <div class="seller-left">
-            <div class="seller-name">${escapeHtml(member.name || "Unknown Member")}</div>
-            <div class="seller-sub">
-              Problem: ${formatNumber(member.problem || 0)} •
-              Rate: ${formatNumber(member.rate || 0)} •
-              Payment: ${formatCurrency(member.payment || 0)}
+      if (mode === "member") {
+        target.innerHTML = items.map(item => `
+          <div class="item">
+            <div>
+              <div class="item-name">${escapeHtml(item.name || "Unknown Member")}</div>
+              <div class="item-sub">
+                Total: ${formatNumber(item.total || 0)} •
+                Problem: ${formatNumber(item.problem || 0)} •
+                Rate: ${formatNumber(item.rate || 0)} •
+                Payment: ${formatCurrency(item.payment || 0)}
+              </div>
+            </div>
+            <div class="item-side">
+              <span class="pill">${formatNumber(item.good || 0)} good</span>
             </div>
           </div>
-          <div class="seller-count">
-            <span class="pill">${formatNumber(member.good || 0)} good</span>
+        `).join("");
+      }
+
+      if (mode === "problem") {
+        target.innerHTML = items.map(item => `
+          <div class="item">
+            <div>
+              <div class="item-name">${escapeHtml(item.name || "Unknown")}</div>
+              <div class="item-sub">Problem status count</div>
+            </div>
+            <div class="item-side">
+              <span class="pill">${formatNumber(item.count || 0)} pcs</span>
+            </div>
           </div>
-        </div>
-      `).join("");
+        `).join("");
+      }
     }
 
-    function renderRecent() {
+    function renderRecent(rows) {
       const target = document.getElementById("recentTable");
 
-      if (!state.recent.length) {
-        target.innerHTML = `<tr><td colspan="4">No records found</td></tr>`;
+      if (!rows || !rows.length) {
+        target.innerHTML = `<tr><td colspan="5">No records found</td></tr>`;
         return;
       }
 
-      target.innerHTML = state.recent.map(row => {
-        const s = String(row.status || "").toLowerCase();
+      target.innerHTML = rows.map(row => {
+        const s = String(row.status || "").trim().toLowerCase();
         let cls = "other";
-        if (s.includes("good")) cls = "good";
-        else if (s.includes("problem") || s.includes("bad")) cls = "problem";
+        if (s === "ok") cls = "good";
+        else if (s !== "") cls = "problem";
 
         return `
           <tr>
             <td>${escapeHtml(row.mail || "-")}</td>
             <td>${escapeHtml(row.seller || "-")}</td>
             <td>${escapeHtml(row.member || "-")}</td>
-            <td><span class="tag ${cls}">${escapeHtml(row.status || "Other")}</span></td>
+            <td><span class="tag ${cls}">${escapeHtml(row.status || "-")}</span></td>
+            <td>${escapeHtml(row.sourceSheet || "-")}</td>
           </tr>
         `;
       }).join("");
     }
 
-    function renderAll() {
-      renderStats();
-      renderSellerList("sheet1SellerList", state.sellers.sheet1);
-      renderSellerList("otherSellerList", state.sellers.other);
-      renderMembers();
-      renderRecent();
+    function renderRulesByRole() {
+      const rateSection = document.getElementById("rateSection");
+      const rulesSection = document.getElementById("rulesSection");
+
+      if (state.role === "member") {
+        rateSection.classList.add("hidden");
+        rulesSection.classList.add("hidden");
+      } else if (state.role === "admin") {
+        rateSection.classList.remove("hidden");
+        rulesSection.classList.add("hidden");
+      } else {
+        rateSection.classList.remove("hidden");
+        rulesSection.classList.remove("hidden");
+      }
     }
 
-    function copySummary() {
-      const text = `Gmail Team Pro Summary
+    function renderDashboardByRole() {
+      renderRulesByRole();
 
-Total Mails: ${state.stats.total}
-Good: ${state.stats.good}
-Problem: ${state.stats.problem}
-Other: ${state.stats.other}
-Team Rate: ${state.teamRate}
-Team Payment: ${state.stats.totalTeamPayment}
-Seller Payment: ${state.stats.totalSellerPayment}`;
+      if (state.role === "member") {
+        const memberName = state.memberName;
+        const found = state.members.find(m => m.name.toLowerCase() === memberName.toLowerCase()) || {
+          name: memberName, total:0, good:0, problem:0, payment:0, rate:state.teamRate
+        };
 
-      navigator.clipboard.writeText(text);
-      alert("Summary copied");
+        document.getElementById("topRoleLabel").textContent = `Team Page • ${found.name}`;
+        document.getElementById("heroTitle").textContent = `${found.name} — team member dashboard`;
+        document.getElementById("heroSub").textContent = `নিজের good, problem, payment আর own recent work এখান থেকে দেখা যাবে।`;
+
+        renderStats({
+          total: Number(found.total || 0),
+          good: Number(found.good || 0),
+          problem: Number(found.problem || 0),
+          sheet1Good: 0,
+          otherGood: 0,
+          teamPayment: Number(found.payment || 0),
+          sellerPayment: 0,
+          sellerCount: 0,
+          memberCount: 1
+        });
+
+        renderList("sheet1SellerList", [], "seller");
+        renderList("otherSellerList", [], "seller");
+        renderList("teamSummaryList", [found], "member");
+
+        const memberRecent = state.recent.filter(r => String(r.member || "").toLowerCase() === memberName.toLowerCase());
+        renderRecent(memberRecent);
+
+        const memberProblemBreakdown = aggregateProblemFromRows(memberRecent);
+        renderList("problemBreakdownList", memberProblemBreakdown, "problem");
+        return;
+      }
+
+      if (state.role === "admin") {
+        document.getElementById("topRoleLabel").textContent = "Admin Page • Overview Access";
+        document.getElementById("heroTitle").textContent = "Admin dashboard with live seller, member and payment overview.";
+        document.getElementById("heroSub").textContent = "Admin view-তে overview, rate update, seller breakdown, problem breakdown আর team summary দেখা যাবে।";
+
+        renderStats();
+        renderList("sheet1SellerList", state.sellers.sheet1, "seller");
+        renderList("otherSellerList", state.sellers.other, "seller");
+        renderList("teamSummaryList", state.members, "member");
+        renderList("problemBreakdownList", state.problemBreakdown, "problem");
+        renderRecent(state.recent);
+        return;
+      }
+
+      document.getElementById("topRoleLabel").textContent = "Super Admin Page • Full Access";
+      document.getElementById("heroTitle").textContent = "Super admin dashboard with full access and control sections.";
+      document.getElementById("heroSub").textContent = "Super admin view-তে সব overview, payment panel, rate panel, rules আর full live data show হবে।";
+
+      renderStats();
+      renderList("sheet1SellerList", state.sellers.sheet1, "seller");
+      renderList("otherSellerList", state.sellers.other, "seller");
+      renderList("teamSummaryList", state.members, "member");
+      renderList("problemBreakdownList", state.problemBreakdown, "problem");
+      renderRecent(state.recent);
     }
 
     async function refreshData() {
@@ -1114,19 +1519,144 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
         const data = await res.json();
 
         if (!data.success) {
+          const msg = document.getElementById("loginMessage");
+          if (msg) msg.textContent = data.error || "Failed to load data";
           alert(data.error || "Failed to load data");
           return;
         }
 
         loadRatesFromLocal();
         mapApiToState(data);
-        renderAll();
+
+        if (state.role) {
+          renderDashboardByRole();
+        }
       } catch (err) {
         console.error(err);
-        alert("Failed to fetch dashboard data");
+        const msg = document.getElementById("loginMessage");
+        if (msg) msg.textContent = "Failed to fetch dashboard data.";
       }
     }
 
+    function showDashboard() {
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("dashboardPage").classList.remove("hidden");
+      renderDashboardByRole();
+    }
+
+    function logout() {
+      state.role = null;
+      state.memberName = null;
+      document.getElementById("dashboardPage").classList.add("hidden");
+      document.getElementById("loginPage").classList.remove("hidden");
+      document.getElementById("loginPassword").value = "";
+    }
+
+    function copySummary() {
+      const text = `Gmail Team Pro Summary
+
+Role: ${state.role || "-"}
+Member: ${state.memberName || "-"}
+Total Mails: ${state.stats.total}
+Good: ${state.stats.good}
+Problem: ${state.stats.problem}
+Member Rate: ${state.teamRate}
+Team Payment: ${state.stats.totalTeamPayment}
+Seller Payment: ${state.stats.totalSellerPayment}`;
+
+      navigator.clipboard.writeText(text);
+      alert("Summary copied");
+    }
+
+    function handleLogin() {
+      const input = document.getElementById("loginPassword");
+      const raw = String(input.value || "").trim();
+      const password = raw.toLowerCase();
+
+      if (!raw) {
+        alert("Password দে");
+        return;
+      }
+
+      if (raw === SUPER_ADMIN_PASSWORD) {
+        state.role = "super";
+        state.memberName = null;
+        showDashboard();
+        return;
+      }
+
+      if (raw === ADMIN_PASSWORD) {
+        state.role = "admin";
+        state.memberName = null;
+        showDashboard();
+        return;
+      }
+
+      const matchedMember = state.memberNames.find(name => String(name).trim().toLowerCase() === password);
+
+      if (matchedMember) {
+        state.role = "member";
+        state.memberName = matchedMember;
+        showDashboard();
+        return;
+      }
+
+      alert("Wrong password");
+    }
+
+    function bindLogin() {
+      document.getElementById("loginBtn").addEventListener("click", handleLogin);
+      document.getElementById("loginPassword").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleLogin();
+      });
+    }
+
+    function startCodeBackground() {
+      const canvas = document.getElementById("codeCanvas");
+      const ctx = canvas.getContext("2d");
+
+      let w, h, cols, drops, fontSize;
+      const chars = ("01010101 {}[]() => const let var function return fetch async await status ok problem seller member rate payment sheet login admin super team gmail dashboard").split("");
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+        fontSize = 15;
+        cols = Math.floor(w / fontSize);
+        drops = Array(cols).fill(1).map(() => Math.random() * -50);
+      }
+
+      function draw() {
+        ctx.fillStyle = "rgba(3,6,15,0.12)";
+        ctx.fillRect(0, 0, w, h);
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = chars[Math.floor(Math.random() * chars.length)];
+          const x = i * fontSize;
+          const y = drops[i] * fontSize;
+
+          const r = Math.floor(100 + Math.sin((i + drops[i]) * 0.2) * 40);
+          const g = Math.floor(180 + Math.cos((i + drops[i]) * 0.14) * 40);
+          const b = 255;
+          ctx.fillStyle = `rgba(${r},${g},${b},0.8)`;
+          ctx.font = `${fontSize}px monospace`;
+          ctx.fillText(text, x, y);
+
+          if (y > h && Math.random() > 0.985) drops[i] = 0;
+          drops[i]++;
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      draw();
+      window.addEventListener("resize", resize);
+    }
+
+    setupCardClicks();
+    bindLogin();
+    startCodeBackground();
     loadRatesFromLocal();
     refreshData();
   </script>
