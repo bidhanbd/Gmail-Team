@@ -15,10 +15,12 @@
   <style>
     :root{
       --bg:#050816;
-      --card:rgba(12,18,36,.72);
-      --stroke:rgba(255,255,255,.10);
+      --card:rgba(12,18,36,.62);
+      --glass-strong:rgba(9,14,28,.76);
+      --glass-soft:rgba(255,255,255,.055);
+      --stroke:rgba(255,255,255,.16);
       --text:#f5f7ff;
-      --muted:#9ca9cf;
+      --muted:#b5c0df;
       --blue:#47a7ff;
       --purple:#8a5cff;
       --cyan:#45f3ff;
@@ -92,9 +94,9 @@
       background:var(--card);
       border:1px solid var(--stroke);
       border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
+      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter:blur(22px) saturate(1.16);
+      -webkit-backdrop-filter:blur(22px) saturate(1.16);
       position:relative;
       overflow:hidden;
     }
@@ -103,7 +105,9 @@
       content:"";
       position:absolute;
       inset:0;
-      background:linear-gradient(180deg, rgba(255,255,255,.06), transparent 28%);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.12), transparent 32%),
+        linear-gradient(135deg, rgba(71,167,255,.07), rgba(46,232,135,.035), transparent 62%);
       pointer-events:none;
     }
 
@@ -118,9 +122,35 @@
       box-shadow:0 30px 80px rgba(0,0,0,.42);
     }
 
+    .clickable-card{
+      --press-x:50%;
+      --press-y:50%;
+      --tilt-x:0deg;
+      --tilt-y:0deg;
+      transform-style:preserve-3d;
+    }
+
     .fire-ring{
       position:relative;
       isolation:isolate;
+    }
+
+    .fire-ring::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      background:
+        radial-gradient(circle at var(--press-x) var(--press-y),
+          rgba(255,255,255,.34) 0 0,
+          rgba(71,167,255,.22) 8%,
+          rgba(46,232,135,.12) 18%,
+          transparent 42%);
+      opacity:0;
+      transform:scale(.96);
+      pointer-events:none;
+      z-index:1;
+      mix-blend-mode:screen;
     }
 
     .fire-ring::after{
@@ -141,7 +171,32 @@
       pointer-events:none;
     }
 
-    .fire-ring.active::after{animation:smartGlow 1.15s ease both}
+    .fire-ring.active{
+      animation:waterPress 1.45s cubic-bezier(.18,.9,.22,1) both;
+    }
+
+    .fire-ring.active::before{
+      animation:pressureRipple 1.25s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    .fire-ring.active::after{animation:smartGlow 1.35s ease both}
+
+    @keyframes pressureRipple{
+      0%{opacity:.95;transform:scale(.92)}
+      22%{opacity:.62;transform:scale(1.01)}
+      58%{opacity:.22;transform:scale(1.08)}
+      100%{opacity:0;transform:scale(1.16)}
+    }
+
+    @keyframes waterPress{
+      0%{transform:translateY(0) scale(1) rotateX(0) rotateY(0)}
+      18%{transform:translateY(3px) scale(.992) rotateX(var(--tilt-y)) rotateY(var(--tilt-x))}
+      38%{transform:translateY(-7px) scale(1.012) rotateX(calc(var(--tilt-y) * -.55)) rotateY(calc(var(--tilt-x) * -.55))}
+      62%{transform:translateY(-3px) scale(1.006) rotateX(calc(var(--tilt-y) * .24)) rotateY(calc(var(--tilt-x) * .24))}
+      82%{transform:translateY(-1px) scale(1.002) rotateX(calc(var(--tilt-y) * -.12)) rotateY(calc(var(--tilt-x) * -.12))}
+      100%{transform:translateY(0) scale(1) rotateX(0) rotateY(0)}
+    }
+
     @keyframes smartGlow{
       0%{opacity:0;transform:scale(.995)}
       35%{opacity:1;transform:scale(1)}
@@ -156,9 +211,11 @@
       border-radius:16px;
       font-weight:800;
       color:var(--text);
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow:0 10px 25px rgba(0,0,0,.18);
+      background:rgba(255,255,255,.075);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 10px 25px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
       transition:.25s ease;
     }
 
@@ -166,6 +223,77 @@
       transform:translateY(-2px);
       background:rgba(255,255,255,.09);
       border-color:rgba(255,255,255,.16);
+    }
+
+    .btn:disabled,
+    .btn.loading{
+      cursor:wait;
+      opacity:.68;
+      pointer-events:none;
+      transform:none;
+    }
+
+    .global-loader{
+      position:fixed;
+      top:18px;
+      right:18px;
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      gap:11px;
+      padding:11px 14px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.18);
+      background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+      color:var(--text);
+      -webkit-backdrop-filter:blur(18px);
+      backdrop-filter:blur(18px);
+      box-shadow:0 18px 44px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.14);
+      opacity:0;
+      transform:translateY(-8px);
+      pointer-events:none;
+      transition:.2s ease;
+    }
+
+    .global-loader.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .loader-dot{
+      width:22px;
+      height:22px;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.16);
+      border-top-color:#47a7ff;
+      border-right-color:#2ee887;
+      position:relative;
+      animation:loaderSpin .75s linear infinite;
+    }
+
+    .loader-dot::after{
+      content:"";
+      position:absolute;
+      inset:4px;
+      border-radius:50%;
+      background:linear-gradient(135deg, rgba(71,167,255,.9), rgba(46,232,135,.85));
+      box-shadow:0 0 18px rgba(71,167,255,.42);
+      animation:loaderPulse .9s ease-in-out infinite;
+    }
+
+    .global-loader span{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
+    @keyframes loaderSpin{
+      to{transform:rotate(360deg)}
+    }
+
+    @keyframes loaderPulse{
+      0%,100%{transform:scale(.72);opacity:.55}
+      50%{transform:scale(1);opacity:1}
     }
 
     .btn.primary{
@@ -185,14 +313,28 @@
       width:100%;
       padding:14px 15px;
       border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(5,10,24,.66);
-      color:#fff;
+      border:1px solid rgba(255,255,255,.24);
+      background:linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      color:#f8fbff;
       outline:none;
       font-size:14px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 12px 28px rgba(0,0,0,.18);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
     }
 
-    .input::placeholder{color:#8390b6}
+    .input:focus,.select:focus{
+      border-color:rgba(71,167,255,.62);
+      background:linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.08));
+      box-shadow:0 0 0 3px rgba(71,167,255,.14), inset 0 1px 0 rgba(255,255,255,.22), 0 14px 32px rgba(0,0,0,.2);
+    }
+
+    .select option{
+      background:#151b2c;
+      color:#f8fbff;
+    }
+
+    .input::placeholder{color:#c0c9e6}
 
     .page{animation:fadeIn .45s ease}
     @keyframes fadeIn{
@@ -452,8 +594,11 @@
     .mini-stat{
       padding:10px;
       border-radius:14px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.035));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 14px 32px rgba(0,0,0,.18);
+      backdrop-filter:blur(18px) saturate(1.12);
+      -webkit-backdrop-filter:blur(18px) saturate(1.12);
     }
 
     .mini-stat span{
@@ -499,14 +644,14 @@
 
     .stats-grid{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:16px;
+      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+      gap:12px;
       margin-bottom:18px;
     }
 
     .stat-card{
-      padding:22px;
-      min-height:160px;
+      padding:16px;
+      min-height:124px;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
@@ -516,6 +661,8 @@
     .stat-card:nth-child(2){animation-delay:.6s}
     .stat-card:nth-child(3){animation-delay:1.2s}
     .stat-card:nth-child(4){animation-delay:1.8s}
+    .stat-card:nth-child(5){animation-delay:2.4s}
+    .stat-card:nth-child(6){animation-delay:3s}
 
     @keyframes cardPulse{
       0%,100%{transform:translateY(0)}
@@ -536,18 +683,18 @@
     }
 
     .icon{
-      width:48px;
-      height:48px;
+      width:40px;
+      height:40px;
       display:grid;
       place-items:center;
-      font-size:20px;
-      border-radius:16px;
+      font-size:18px;
+      border-radius:8px;
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.08);
     }
 
     .stat-value{
-      font-size:40px;
+      font-size:32px;
       font-weight:800;
       letter-spacing:-1px;
     }
@@ -565,6 +712,27 @@
       display:grid;
       grid-template-columns:1.35fr .85fr;
       gap:18px;
+    }
+
+    .content-grid.panel-payment,
+    .content-grid.panel-rate,
+    .content-grid.panel-export,
+    .content-grid.panel-history,
+    .content-grid.panel-problem,
+    .content-grid.panel-recent{
+      grid-template-columns:1fr;
+    }
+
+    .content-grid.panel-payment .left-stack,
+    .content-grid.panel-rate .left-stack,
+    .content-grid.panel-export .left-stack,
+    .content-grid.panel-history .left-stack{
+      display:none;
+    }
+
+    .content-grid.panel-problem .right-stack,
+    .content-grid.panel-recent .right-stack{
+      display:none;
     }
 
     .breakdown-shell{
@@ -594,8 +762,11 @@
     .item{
       padding:13px 14px;
       border-radius:16px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.06);
+      background:rgba(255,255,255,.065);
+      border:1px solid rgba(255,255,255,.13);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 12px 24px rgba(0,0,0,.18);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
       display:grid;
       grid-template-columns:1fr auto;
       gap:12px;
@@ -608,6 +779,8 @@
       margin-bottom:4px;
       line-height:1.4;
       word-break:break-word;
+      color:#ffffff;
+      text-shadow:0 1px 12px rgba(0,0,0,.28);
     }
 
     .item-name.clickable{
@@ -624,6 +797,7 @@
       font-size:12px;
       line-height:1.6;
       word-break:break-word;
+      text-shadow:0 1px 10px rgba(0,0,0,.24);
     }
 
     .item-side{
@@ -639,8 +813,9 @@
       border-radius:999px;
       font-size:12px;
       font-weight:800;
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
       white-space:nowrap;
     }
 
@@ -664,8 +839,11 @@
     .payment-box{
       padding:18px;
       border-radius:20px;
-      background:linear-gradient(145deg, rgba(71,167,255,.12), rgba(138,92,255,.14));
-      border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(145deg, rgba(71,167,255,.16), rgba(46,232,135,.07), rgba(138,92,255,.12));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.10), 0 14px 32px rgba(0,0,0,.22);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
       margin-bottom:14px;
     }
 
@@ -679,6 +857,118 @@
       font-weight:800;
       margin-top:8px;
       letter-spacing:-.8px;
+    }
+
+    .payment-layout{
+      display:grid;
+      grid-template-columns:minmax(160px,.6fr) minmax(330px,1.25fr) minmax(330px,1.25fr) minmax(160px,.6fr);
+      gap:12px;
+      align-items:start;
+    }
+
+    .payment-summary,
+    .seller-payment-summary,
+    .payment-breakdown{
+      min-width:0;
+      height:100%;
+      padding:14px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:8px;
+      background:rgba(255,255,255,.045);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 18px 40px rgba(0,0,0,.20);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+    }
+
+    .compact-head{
+      margin-bottom:12px;
+    }
+
+    #paymentSection .section-head h3{
+      font-size:13.6px;
+    }
+
+    #paymentSection .section-head p,
+    #paymentSection .kv-row,
+    #paymentSection .payment-box .small{
+      font-size:8.9px;
+    }
+
+    #paymentSection .item{
+      padding:8px 9px;
+      gap:8px;
+      grid-template-columns:minmax(0,1fr) auto;
+    }
+
+    #paymentSection .item-name{
+      font-size:9.5px;
+      margin-bottom:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      min-width:0;
+    }
+
+    #paymentSection .item-sub{
+      font-size:8.2px;
+      line-height:1.5;
+    }
+
+    .item-title-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:5px;
+      min-width:0;
+    }
+
+    #paymentSection .item-title-row{
+      display:block;
+    }
+
+    .amount-badge{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:5px 9px;
+      border-radius:8px;
+      border:1px solid rgba(87,255,161,.35);
+      background:rgba(87,255,161,.08);
+      color:#dfffee;
+      font-size:13.6px;
+      font-weight:900;
+      line-height:1;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    #paymentSection .item-side{
+      flex-wrap:nowrap;
+      gap:6px;
+    }
+
+    #paymentSection .pill{
+      padding:6px 9px;
+      font-size:10.2px;
+    }
+
+    #paymentSection .btn{
+      padding:9px 12px;
+      font-size:10.2px;
+    }
+
+    #paymentSection .payment-box{
+      padding:13px;
+      margin-bottom:10px;
+    }
+
+    #paymentSection .payment-box .big{
+      font-size:22px;
+    }
+
+    .payment-control-stack{
+      display:grid;
+      gap:10px;
     }
 
     .kv{
@@ -731,8 +1021,11 @@
     .table-wrap{
       margin-top:14px;
       border-radius:20px;
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.14);
+      background:linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.026));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 18px 44px rgba(0,0,0,.2);
+      backdrop-filter:blur(20px) saturate(1.12);
+      -webkit-backdrop-filter:blur(20px) saturate(1.12);
       overflow:hidden;
     }
 
@@ -750,7 +1043,7 @@
     }
 
     th{
-      background:rgba(255,255,255,.04);
+      background:rgba(255,255,255,.075);
       color:#dce6ff;
       font-weight:800;
     }
@@ -801,8 +1094,11 @@
       align-items:center;
       padding:12px 14px;
       border-radius:16px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.06);
+      background:linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 12px 28px rgba(0,0,0,.18);
+      backdrop-filter:blur(18px) saturate(1.12);
+      -webkit-backdrop-filter:blur(18px) saturate(1.12);
     }
 
     .export-row strong{
@@ -827,6 +1123,7 @@
     .modal-card{
       width:min(560px, 100%);
       padding:22px;
+      position:relative;
     }
 
     .wide-modal{
@@ -845,6 +1142,31 @@
       font-size:24px;
       font-weight:800;
       margin-bottom:14px;
+      padding-right:42px;
+    }
+
+    .modal-close-x{
+      position:absolute;
+      top:14px;
+      right:14px;
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      font-size:20px;
+      font-weight:900;
+      line-height:1;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .modal-close-x:hover{
+      background:rgba(255,95,125,.18);
+      border-color:rgba(255,95,125,.34);
     }
 
     .ranking-grid{
@@ -870,6 +1192,7 @@
       .chart-grid,.content-grid{grid-template-columns:1fr}
       .stats-grid{grid-template-columns:repeat(2,1fr)}
       .login-shell{grid-template-columns:1fr}
+      .payment-layout{grid-template-columns:1fr}
     }
 
     @media (max-width: 760px){
@@ -932,13 +1255,10 @@
         </div>
 
         <div class="top-actions">
-          <button class="btn" onclick="showSection('overviewSection')">Overview</button>
-          <button class="btn" onclick="showSection('statsSection')">Stats</button>
-          <button class="btn" onclick="showSection('sellerSection')" data-admin-only="true">Sellers</button>
+          <button class="btn" onclick="showSection('statsSection')">Home</button>
           <button class="btn" onclick="showSection('problemSection')">Problems</button>
           <button class="btn" onclick="showSection('recentSection')">Recent</button>
           <button class="btn" onclick="showSection('paymentSection')">Payment</button>
-          <button class="btn" onclick="showSection('rateSection')" data-admin-only="true">Rates</button>
           <button class="btn" onclick="showSection('exportSection')" data-admin-only="true">Export</button>
           <button class="btn" onclick="showActivityPanel()" id="activityNavBtn">Activity</button>
           <button class="btn" onclick="refreshData()">Refresh</button>
@@ -947,7 +1267,7 @@
         </div>
       </div>
 
-      <div class="chart-grid" id="overviewSection">
+      <div class="chart-grid" id="overviewSection" data-panel="overview">
         <div class="glass animated-card section compact-chart-section fire-ring clickable-card">
           <div class="section-head">
             <div>
@@ -962,7 +1282,7 @@
             <div class="mini-stat"><span>Total Mails</span><strong id="miniTotalMails">0</strong></div>
             <div class="mini-stat"><span>Good</span><strong id="miniGoodMails">0</strong></div>
             <div class="mini-stat"><span>Problem</span><strong id="miniProblemMails">0</strong></div>
-            <div class="mini-stat"><span>Member Payment</span><strong id="miniTeamPayment">0</strong></div>
+            <div class="mini-stat"><span>Members Payment</span><strong id="miniTeamPayment">0</strong></div>
           </div>
         </div>
 
@@ -987,7 +1307,19 @@
         </div>
       </div>
 
-      <div class="stats-grid" id="statsSection">
+      <div class="stats-grid" id="statsSection" data-panel="home">
+        <div class="glass animated-card stat-card fire-ring clickable-card">
+          <div class="stat-top">
+            <div class="label">Sheet1 Good</div>
+            <div class="icon">✅</div>
+          </div>
+          <div class="stat-value" id="homeSheet1Good">0</div>
+          <div class="stat-bottom">
+            <span>Main sheet good count</span>
+            <span>Live</span>
+          </div>
+        </div>
+
         <div class="glass animated-card stat-card fire-ring clickable-card">
           <div class="stat-top">
             <div class="label">Total Mails</div>
@@ -995,8 +1327,8 @@
           </div>
           <div class="stat-value" id="totalMails">0</div>
           <div class="stat-bottom">
-            <span>All rows combined</span>
             <span>Live count</span>
+            <span>All sheets</span>
           </div>
         </div>
 
@@ -1026,7 +1358,7 @@
 
         <div class="glass animated-card stat-card fire-ring clickable-card">
           <div class="stat-top">
-            <div class="label">Member Payment</div>
+            <div class="label">Members Payment</div>
             <div class="icon">💸</div>
           </div>
           <div class="stat-value" id="totalPayment">0</div>
@@ -1035,32 +1367,23 @@
             <span>Auto calc</span>
           </div>
         </div>
+
+        <div class="glass animated-card stat-card fire-ring clickable-card" data-admin-only="true">
+          <div class="stat-top">
+            <div class="label">Sellers Payment</div>
+            <div class="icon">💵</div>
+          </div>
+          <div class="stat-value" id="homeSellerPayment">0</div>
+          <div class="stat-bottom">
+            <span>Good × Seller Rate</span>
+            <span>Auto calc</span>
+          </div>
+        </div>
       </div>
 
       <div class="content-grid">
         <div class="left-stack">
-          <div class="glass animated-card section fire-ring clickable-card" id="sellerSection">
-            <div class="section-head">
-              <div>
-                <h3>Seller Breakdown</h3>
-                <p>Sheet1 and other sheets inside the same section</p>
-              </div>
-            </div>
-
-            <div class="breakdown-shell">
-              <div class="break-card">
-                <h4>Sheet1 Seller Breakdown</h4>
-                <div class="list" id="sheet1SellerList"></div>
-              </div>
-
-              <div class="break-card">
-                <h4>Other Sheets Seller Breakdown</h4>
-                <div class="list" id="otherSellerList"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="glass animated-card section fire-ring clickable-card" id="problemSection">
+          <div class="glass animated-card section fire-ring clickable-card" id="problemSection" data-panel="problem">
             <div class="section-head">
               <div>
                 <h3>Problem Breakdown</h3>
@@ -1070,7 +1393,7 @@
             <div class="list" id="problemBreakdownList"></div>
           </div>
 
-          <div class="glass animated-card section fire-ring clickable-card" id="recentSection">
+          <div class="glass animated-card section fire-ring clickable-card" id="recentSection" data-panel="recent">
             <div class="section-head">
               <div>
                 <h3>Recent Mail Status</h3>
@@ -1096,7 +1419,7 @@
         </div>
 
         <div class="right-stack">
-          <div class="glass animated-card section fire-ring clickable-card" id="paymentSection">
+          <div class="glass animated-card section fire-ring clickable-card" id="paymentSection" data-panel="payment">
             <div class="section-head">
               <div>
                 <h3>Payment Panel</h3>
@@ -1104,62 +1427,60 @@
               </div>
             </div>
 
-            <div class="payment-box">
-              <div class="small">Total Member Payment</div>
-              <div class="big" id="paymentBig">0</div>
-            </div>
+            <div class="payment-layout">
+              <div class="payment-summary">
+                <div class="payment-box">
+                  <div class="small">Total Members Payment</div>
+                  <div class="big" id="paymentBig">0</div>
+                </div>
 
-            <div class="kv">
-              <div class="kv-row">
-                <span>Sheet1 Good</span>
-                <strong id="sheet1Good">0</strong>
-              </div>
-              <div class="kv-row">
-                <span>Other Sheets Good</span>
-                <strong id="otherGood">0</strong>
-              </div>
-              <div class="kv-row">
-                <span>Member Rate</span>
-                <strong id="teamRateView">0</strong>
-              </div>
-              <div class="kv-row" id="sellerPaymentRow">
-                <span>Total Seller Payment</span>
-                <strong id="sellerPaymentView">0</strong>
-              </div>
-              <div class="kv-row" id="sellerCurrencyRow">
-                <span>Seller Currency</span>
-                <select id="sellerCurrencySelect" class="select" onchange="setSellerCurrency()">
-                  <option value="usd">USD</option>
-                  <option value="bdt">BDT</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div id="rateSection" class="glass animated-card section fire-ring clickable-card">
-            <div class="section-head">
-              <div>
-                <h3>Rate Update</h3>
-                <p>One member rate + seller wise rate</p>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="input-group">
-                <input id="teamRateInput" class="input" type="number" placeholder="Member Rate">
-                <select id="sellerSelect" class="select" onchange="fillSellerRateInput()"></select>
-                <input id="sellerRateInput" class="input" type="number" placeholder="Selected Seller Rate">
+                <div class="payment-control-stack" data-admin-only="true">
+                  <input id="teamRateInput" class="input" type="number" placeholder="Member Rate">
+                  <button class="btn primary" onclick="applyRates()">Apply Rates</button>
+                </div>
               </div>
 
-              <div class="panel-actions">
-                <button class="btn primary" onclick="applyRates()">Apply Rates</button>
+              <div class="payment-breakdown" id="teamSummarySection">
+                <div class="section-head compact-head">
+                  <div>
+                    <h3>Member Breakdown</h3>
+                    <p>Member wise live payment</p>
+                  </div>
+                </div>
+                <div class="list" id="teamSummaryList"></div>
               </div>
 
-              <div class="small-note">একবার set করলে browser-এ থাকবে, change না করা পর্যন্ত same থাকবে।</div>
+              <div class="payment-breakdown" id="sellerSection">
+                <div class="section-head compact-head">
+                  <div>
+                    <h3>Seller Breakdown</h3>
+                    <p>Seller wise live payment</p>
+                  </div>
+                </div>
+                <div class="list" id="allSellerList"></div>
+              </div>
+
+              <div class="seller-payment-summary" data-admin-only="true">
+                <div class="payment-box">
+                  <div class="small">Total Sellers Payment</div>
+                  <div class="big" id="paymentSellerBig">0</div>
+                </div>
+
+                <div class="payment-control-stack">
+                  <select id="sellerSelect" class="select" onchange="fillSellerRateInput()"></select>
+                  <input id="sellerRateInput" class="input" type="number" placeholder="Selected Seller Rate">
+                  <select id="sellerCurrencySelect" class="select" onchange="setSellerCurrency()">
+                    <option value="usd">USD</option>
+                    <option value="bdt">BDT</option>
+                  </select>
+                  <button class="btn primary" onclick="applyRates()">Apply Rates</button>
+                  <div class="small-note">একবার set করলে change না করা পর্যন্ত same থাকবে।</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="glass animated-card section fire-ring clickable-card" id="exportSection">
+          <div class="glass animated-card section fire-ring clickable-card" id="exportSection" data-panel="export">
             <div class="section-head">
               <div>
                 <h3>Export Navigation</h3>
@@ -1187,7 +1508,7 @@
             </div>
           </div>
 
-          <div id="historySection" class="glass animated-card section fire-ring clickable-card hidden">
+          <div id="historySection" class="glass animated-card section fire-ring clickable-card hidden" data-panel="history">
             <div class="section-head">
               <div>
                 <h3>Lifetime Stats</h3>
@@ -1215,15 +1536,6 @@
             </div>
           </div>
 
-          <div class="glass animated-card section fire-ring clickable-card">
-            <div class="section-head">
-              <div>
-                <h3>Team Summary</h3>
-                <p>Member wise live performance</p>
-              </div>
-            </div>
-            <div class="list" id="teamSummaryList"></div>
-          </div>
         </div>
       </div>
     </section>
@@ -1231,6 +1543,7 @@
 
   <div id="modalBackdrop" class="modal-backdrop">
     <div class="glass modal-card">
+      <button class="modal-close-x" onclick="closeModal()" aria-label="Close">×</button>
       <div class="modal-title" id="modalTitle">History</div>
       <div class="kv" id="modalBody"></div>
       <div class="panel-actions" id="modalActions" style="margin-top:14px"></div>
@@ -1239,12 +1552,18 @@
       </div>
     </div>
   </div>
+  <div id="globalLoader" class="global-loader">
+    <div class="loader-dot"></div>
+    <span id="globalLoaderText">Loading...</span>
+  </div>
 
   <script>
     const API_BASE = "https://script.google.com/macros/s/AKfycbzqkF6KgBmoBU37dtBdkvVCOyrp9frRGX5oYxJQ6-mALXWwv8RitgKZ-cw0VP5wqF4w/exec";
     const API_URL = API_BASE + "?action=dashboard";
     const ADMIN_PASSWORD = "admin@555";
     const SUPER_ADMIN_PASSWORD = "super@2024";
+    const SESSION_KEY = "gmailTeamPro_session";
+    const SESSION_TTL_MS = 5 * 60 * 1000;
 
     const state = {
       rawData: null,
@@ -1281,6 +1600,7 @@
       },
       mainChart: null
     };
+    const busyActions = new Set();
 
     function formatNumber(num){ return Number(num || 0).toLocaleString(); }
     function formatCurrency(num){ return Number(num || 0).toLocaleString(); }
@@ -1312,12 +1632,65 @@
         .replace(/'/g, "&#039;");
     }
 
+    function getClickedButton() {
+      const evt = window.event;
+      const button = evt?.currentTarget || evt?.target?.closest?.("button");
+      if (!(button instanceof HTMLButtonElement)) return null;
+      return button.disabled ? null : button;
+    }
+
+    function startLoading(key, label = "Loading...") {
+      if (busyActions.has(key)) return null;
+      busyActions.add(key);
+      const startedAt = Date.now();
+
+      const loader = document.getElementById("globalLoader");
+      const loaderText = document.getElementById("globalLoaderText");
+      if (loaderText) loaderText.textContent = label;
+      if (loader) loader.classList.add("show");
+
+      const button = getClickedButton();
+      if (button) {
+        button.dataset.originalText = button.textContent;
+        button.textContent = label;
+        button.disabled = true;
+        button.classList.add("loading");
+      }
+
+      return () => {
+        const finish = () => {
+          busyActions.delete(key);
+          if (!busyActions.size && loader) loader.classList.remove("show");
+          if (!button) return;
+          button.textContent = button.dataset.originalText || "";
+          button.disabled = false;
+          button.classList.remove("loading");
+          delete button.dataset.originalText;
+        };
+        const wait = Math.max(0, 450 - (Date.now() - startedAt));
+        window.setTimeout(finish, wait);
+      };
+    }
+
     function setupCardClicks() {
       document.addEventListener("click", (e) => {
+        if (e.target.closest("input, select, textarea, option, .input, .select")) return;
         const card = e.target.closest(".clickable-card");
         if (!card) return;
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        const tiltX = ((x - 50) / 50) * 4.5;
+        const tiltY = ((50 - y) / 50) * 4.5;
+
+        card.style.setProperty("--press-x", `${Math.max(0, Math.min(100, x))}%`);
+        card.style.setProperty("--press-y", `${Math.max(0, Math.min(100, y))}%`);
+        card.style.setProperty("--tilt-x", `${tiltX.toFixed(2)}deg`);
+        card.style.setProperty("--tilt-y", `${tiltY.toFixed(2)}deg`);
+        card.classList.remove("active");
+        void card.offsetWidth;
         card.classList.add("active");
-        setTimeout(() => card.classList.remove("active"), 1600);
+        setTimeout(() => card.classList.remove("active"), 1450);
       });
     }
 
@@ -1374,15 +1747,67 @@
     }
 
     function logActivity(action, details = "") {
+      if (state.role === "super") return;
+
       const entry = {
         time: new Date().toISOString(),
         role: state.role || "guest",
-        user: state.memberName || (state.role === "super" ? "Super Admin" : state.role === "admin" ? "Admin" : "Guest"),
+        user: state.memberName || (state.role === "admin" ? "Admin" : "Guest"),
         action,
         details
       };
       state.activity.unshift(entry);
       saveActivityToLocal();
+    }
+
+    function saveLoginSession() {
+      if (!state.role) return;
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        role: state.role,
+        memberName: state.memberName || "",
+        expiresAt: Date.now() + SESSION_TTL_MS
+      }));
+    }
+
+    function clearLoginSession() {
+      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function getSavedLoginSession() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+        if (!saved || !saved.role || Number(saved.expiresAt || 0) < Date.now()) {
+          clearLoginSession();
+          return null;
+        }
+        return saved;
+      } catch (err) {
+        clearLoginSession();
+        return null;
+      }
+    }
+
+    function restoreLoginSession() {
+      const saved = getSavedLoginSession();
+      if (!saved) return false;
+      if (saved.role === "member") {
+        const matchedMember = state.memberNames.find(name => String(name).trim().toLowerCase() === String(saved.memberName || "").trim().toLowerCase());
+        if (!matchedMember) {
+          clearLoginSession();
+          return false;
+        }
+        state.role = "member";
+        state.memberName = matchedMember;
+      } else if (saved.role === "admin" || saved.role === "super") {
+        state.role = saved.role;
+        state.memberName = null;
+      } else {
+        clearLoginSession();
+        return false;
+      }
+      saveLoginSession();
+      showDashboard("Session restore");
+      return true;
     }
 
     function loadRatesFromLocal() {
@@ -1436,13 +1861,15 @@
     }
 
     function applyResetBaselines() {
+      const currentTotalMails = Number(state.stats.total || 0);
+      const currentOtherMails = Number(state.stats.other || 0);
+
       state.members = state.members.map(member => {
         const key = cleanKey(member.name);
         const baseline = Number(state.resetBaselines.members[key]?.good || 0);
         const rawGood = Number(member.good || 0);
         const good = Math.max(0, rawGood - baseline);
-        const problem = Number(member.problem || 0);
-        return { ...member, rawGood, good, total: good + problem };
+        return { ...member, rawGood, good, total: Number(member.total || 0) };
       });
 
       const applySellerBaseline = seller => {
@@ -1450,15 +1877,15 @@
         const baseline = Number(state.resetBaselines.sellers[key]?.good || 0);
         const rawGood = Number(seller.good || 0);
         const good = Math.max(0, rawGood - baseline);
-        const problem = Number(seller.problem || 0);
-        return { ...seller, rawGood, good, total: good + problem };
+        return { ...seller, rawGood, good, total: Number(seller.total || 0) };
       };
 
       state.sellers.sheet1 = state.sellers.sheet1.map(applySellerBaseline);
       state.sellers.other = state.sellers.other.map(applySellerBaseline);
       state.stats.good = state.members.reduce((sum, item) => sum + Number(item.good || 0), 0);
       state.stats.problem = state.members.reduce((sum, item) => sum + Number(item.problem || 0), 0);
-      state.stats.total = state.stats.good + state.stats.problem;
+      state.stats.total = currentTotalMails;
+      state.stats.other = currentOtherMails;
       state.stats.sheet1Good = state.sellers.sheet1.reduce((sum, item) => sum + Number(item.good || 0), 0);
       state.stats.otherGood = state.sellers.other.reduce((sum, item) => sum + Number(item.good || 0), 0);
     }
@@ -1535,10 +1962,20 @@
       document.getElementById("paymentBig").textContent = formatMemberPayment(teamPayment);
       document.getElementById("goodRate").textContent = percent(s.good || 0, s.total || 0);
       document.getElementById("problemRate").textContent = percent(s.problem || 0, s.total || 0);
-      document.getElementById("sheet1Good").textContent = formatNumber(s.sheet1Good || 0);
-      document.getElementById("otherGood").textContent = formatNumber(s.otherGood || 0);
-      document.getElementById("teamRateView").textContent = formatMemberPayment(state.teamRate);
-      document.getElementById("sellerPaymentView").textContent = formatSellerPayment(sellerPayment);
+      const sheet1Good = document.getElementById("sheet1Good");
+      if (sheet1Good) sheet1Good.textContent = formatNumber(s.sheet1Good || 0);
+      const otherGood = document.getElementById("otherGood");
+      if (otherGood) otherGood.textContent = formatNumber(s.otherGood || 0);
+      const teamRateView = document.getElementById("teamRateView");
+      if (teamRateView) teamRateView.textContent = formatMemberPayment(state.teamRate);
+      const sellerPaymentView = document.getElementById("sellerPaymentView");
+      if (sellerPaymentView) sellerPaymentView.textContent = formatSellerPayment(sellerPayment);
+      const paymentSellerBig = document.getElementById("paymentSellerBig");
+      if (paymentSellerBig) paymentSellerBig.textContent = formatSellerPayment(sellerPayment);
+      const homeSellerPayment = document.getElementById("homeSellerPayment");
+      if (homeSellerPayment) homeSellerPayment.textContent = formatSellerPayment(sellerPayment);
+      const homeSheet1Good = document.getElementById("homeSheet1Good");
+      if (homeSheet1Good) homeSheet1Good.textContent = formatNumber(s.sheet1Good || state.stats.sheet1Good || 0);
       renderMiniStats(s, teamPayment);
     }
 
@@ -1569,23 +2006,26 @@
       target.innerHTML = items.map(item => `
         <div class="item">
           <div>
-            <div 
-              class="item-name clickable history-trigger"
-              data-type="seller"
-              data-name="${escapeHtml(item.name || "")}"
-              data-good="${Number(item.good || 0)}"
-              data-payment="${Number(item.payment || 0)}"
-            >
-              ${escapeHtml(item.name || "Unknown Seller")}
+            <div class="item-title-row">
+              <div 
+                class="item-name clickable history-trigger"
+                data-type="seller"
+                data-name="${escapeHtml(item.name || "")}"
+                data-good="${Number(item.good || 0)}"
+                data-payment="${Number(item.payment || 0)}"
+              >
+                ${escapeHtml(item.name || "Unknown Seller")}
+              </div>
             </div>
             <div class="item-sub">
               Good: ${formatNumber(item.good || 0)} •
               Problem: ${formatNumber(item.problem || 0)} •
-              Rate: ${formatNumber(item.rate || 0)} •
-              Payment: ${formatSellerPayment(item.payment || 0)} • ${paymentStatusPill(item.payment || 0)}
+              Rate: ${formatNumber(item.rate || 0)}
             </div>
           </div>
           <div class="item-side">
+            <span class="amount-badge">${formatSellerPayment(item.payment || 0)}</span>
+            ${paymentStatusPill(item.payment || 0)}
             <span class="pill">${formatNumber(item.total || 0)} total</span>
             ${(state.role === "admin" || state.role === "super") ? `<button class="btn red" onclick="resetSpecificSeller('${encodeURIComponent(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">Reset</button>` : ""}
           </div>
@@ -1605,25 +2045,27 @@
       target.innerHTML = items.map(item => `
         <div class="item">
           <div>
-            <div 
-              class="item-name clickable history-trigger"
-              data-type="member"
-              data-name="${escapeHtml(item.name || "")}"
-              data-good="${Number(item.good || 0)}"
-              data-payment="${Number(item.payment || 0)}"
-            >
-              ${escapeHtml(item.name || "Unknown Member")}
+            <div class="item-title-row">
+              <div 
+                class="item-name clickable history-trigger"
+                data-type="member"
+                data-name="${escapeHtml(item.name || "")}"
+                data-good="${Number(item.good || 0)}"
+                data-payment="${Number(item.payment || 0)}"
+              >
+                ${escapeHtml(item.name || "Unknown Member")}
+              </div>
             </div>
             <div class="item-sub">
               Total: ${formatNumber(item.total || 0)} •
               Problem: ${formatNumber(item.problem || 0)} •
-              Rate: ${formatNumber(item.rate || 0)} •
-              Payment: ${formatMemberPayment(item.payment || 0)} • ${paymentStatusPill(item.payment || 0)}
+              Rate: ${formatNumber(item.rate || 0)}
             </div>
           </div>
           <div class="item-side">
-            <span class="pill">${formatNumber(item.good || 0)} good</span>
+            <span class="amount-badge">${formatMemberPayment(item.payment || 0)}</span>
             ${paymentStatusPill(item.payment || 0)}
+            <span class="pill">${formatNumber(item.good || 0)} good</span>
             ${state.role === "member" ? "" : `<button class="btn red" onclick="resetSpecificMember('${encodeURIComponent(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">Reset</button>`}
           </div>
         </div>
@@ -1762,6 +2204,8 @@
     }
 
     async function showEntityHistory(type, name, good, payment) {
+      const stopLoading = startLoading(`history:${type}:${name}`);
+      if (!stopLoading) return;
       try {
         if (state.role === "member" && type === "seller") return;
         logActivity("History view", `${type}: ${name}`);
@@ -1793,6 +2237,8 @@
       } catch (err) {
         console.error(err);
         alert("Failed to load history");
+      } finally {
+        stopLoading();
       }
     }
 
@@ -1842,6 +2288,8 @@
       const ok = confirm("Payment complete হলে reset হবে. Continue?");
       if (!ok) return;
 
+      const stopLoading = startLoading(`reset-member:${state.memberName}`, "Resetting...");
+      if (!stopLoading) return;
       try {
         const form = new URLSearchParams();
         form.append("action", "resetMember");
@@ -1870,6 +2318,8 @@
       } catch (err) {
         console.error(err);
         alert("Reset failed");
+      } finally {
+        stopLoading();
       }
     }
 
@@ -1878,6 +2328,8 @@
       const ok = confirm("এই member reset করবে?");
       if (!ok) return;
 
+      const stopLoading = startLoading(`reset-member:${name}`, "Resetting...");
+      if (!stopLoading) return;
       try {
         const form = new URLSearchParams();
         form.append("action", "resetMember");
@@ -1907,6 +2359,8 @@
       } catch (err) {
         console.error(err);
         alert("Reset failed");
+      } finally {
+        stopLoading();
       }
     }
 
@@ -1914,6 +2368,8 @@
       if (state.role === "member") return;
 
       const name = decodeURIComponent(encodedName);
+      const stopLoading = startLoading(`seller-history:${name}`);
+      if (!stopLoading) return;
       try {
         logActivity("Seller good history", name);
         const [historyRes, exportRes] = await Promise.all([
@@ -1954,6 +2410,8 @@
       } catch (err) {
         console.error(err);
         alert("Failed to load seller history");
+      } finally {
+        stopLoading();
       }
     }
 
@@ -1962,6 +2420,8 @@
       const ok = confirm("এই seller reset করবে?");
       if (!ok) return;
 
+      const stopLoading = startLoading(`reset-seller:${name}`, "Resetting...");
+      if (!stopLoading) return;
       try {
         const form = new URLSearchParams();
         form.append("action", "resetSeller");
@@ -1991,10 +2451,14 @@
       } catch (err) {
         console.error(err);
         alert("Reset failed");
+      } finally {
+        stopLoading();
       }
     }
 
     async function exportDataset(exportType) {
+      const stopLoading = startLoading(`export:${exportType}`, "Exporting...");
+      if (!stopLoading) return;
       try {
         const res = await fetch(`${API_BASE}?action=export&exportType=${encodeURIComponent(exportType)}`);
         const data = await res.json();
@@ -2009,6 +2473,8 @@
       } catch (err) {
         console.error(err);
         alert("Export failed");
+      } finally {
+        stopLoading();
       }
     }
 
@@ -2019,6 +2485,8 @@
         return;
       }
 
+      const stopLoading = startLoading(`export-seller:${exportType}:${seller}`, "Exporting...");
+      if (!stopLoading) return;
       try {
         const res = await fetch(`${API_BASE}?action=export&exportType=${encodeURIComponent(exportType)}&seller=${encodeURIComponent(seller)}`);
         const data = await res.json();
@@ -2033,6 +2501,8 @@
       } catch (err) {
         console.error(err);
         alert("Export failed");
+      } finally {
+        stopLoading();
       }
     }
 
@@ -2061,7 +2531,6 @@
 
     function renderRulesByRole() {
       const rateSection = document.getElementById("rateSection");
-      const sellerPaymentRow = document.getElementById("sellerPaymentRow");
       const historySection = document.getElementById("historySection");
       const sellerSection = document.getElementById("sellerSection");
       const exportSection = document.getElementById("exportSection");
@@ -2070,10 +2539,9 @@
       const adminOnlyButtons = document.querySelectorAll("[data-admin-only='true']");
 
       if (state.role === "member") {
-        rateSection.classList.add("hidden");
+        if (rateSection) rateSection.classList.add("hidden");
         sellerSection.classList.add("hidden");
         exportSection.classList.add("hidden");
-        sellerPaymentRow.style.display = "none";
         historySection.classList.remove("hidden");
         const resetPaymentBtn = document.getElementById("resetPaymentBtn");
         if (resetPaymentBtn) resetPaymentBtn.classList.add("hidden");
@@ -2081,10 +2549,9 @@
         topSellersColumn.classList.add("hidden");
         adminOnlyButtons.forEach(btn => btn.classList.add("hidden"));
       } else {
-        rateSection.classList.remove("hidden");
+        if (rateSection) rateSection.classList.remove("hidden");
         sellerSection.classList.remove("hidden");
         exportSection.classList.remove("hidden");
-        sellerPaymentRow.style.display = "flex";
         historySection.classList.add("hidden");
         const resetPaymentBtn = document.getElementById("resetPaymentBtn");
         if (resetPaymentBtn) resetPaymentBtn.classList.remove("hidden");
@@ -2117,8 +2584,7 @@
           sellerPayment: 0
         });
 
-        renderSellerList("sheet1SellerList", []);
-        renderSellerList("otherSellerList", []);
+        renderSellerList("allSellerList", []);
         renderMembers([found]);
 
         const memberRecent = state.recent.filter(r => String(r.member || "").toLowerCase() === memberName.toLowerCase());
@@ -2128,6 +2594,7 @@
         renderProblemBreakdown(memberProblemBreakdown);
 
         loadMemberOwnHistory(state.memberName);
+        setActivePanel(getDefaultPanel());
         return;
       }
 
@@ -2138,37 +2605,125 @@
       }
 
       renderStats();
-      renderSellerList("sheet1SellerList", state.sellers.sheet1);
-      renderSellerList("otherSellerList", state.sellers.other);
+      renderSellerList("allSellerList", [...state.sellers.sheet1, ...state.sellers.other]);
       renderMembers(state.members);
       renderProblemBreakdown(state.problemBreakdown);
       renderRecent(state.recent);
+      setActivePanel(getDefaultPanel());
+    }
+
+    function getDefaultPanel() {
+      return "home";
+    }
+
+    function setActivePanel(panel = getDefaultPanel()) {
+      document.querySelectorAll("[data-panel]").forEach(section => {
+        section.classList.toggle("hidden", section.dataset.panel !== panel);
+      });
+
+      const contentGrid = document.querySelector(".content-grid");
+      if (contentGrid) {
+        contentGrid.className = contentGrid.className
+          .split(/\s+/)
+          .filter(name => name && !name.startsWith("panel-"))
+          .join(" ");
+        contentGrid.classList.add(`panel-${panel}`);
+      }
+
+      if (state.role === "member") {
+        ["sellerSection", "exportSection", "rateSection"].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add("hidden");
+        });
+      }
     }
 
     function showSection(id) {
-      const target = document.getElementById(id);
-      if (!target || target.classList.contains("hidden")) return;
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-      logActivity("Navigation", id);
+      const panelMap = {
+        main: "home",
+        overviewSection: "overview",
+        statsSection: "home",
+        sellerSection: "payment",
+        problemSection: "problem",
+        recentSection: "recent",
+        paymentSection: "payment",
+        exportSection: "export",
+        historySection: "history",
+        teamSummarySection: "payment"
+      };
+      const panel = panelMap[id] || id;
+      setActivePanel(panel);
+      const dashboard = document.getElementById("dashboardPage");
+      if (dashboard) dashboard.scrollIntoView({ behavior: "smooth", block: "start" });
+      logActivity("Navigation", panel);
     }
 
-    function showActivityPanel() {
+    async function showActivityPanel() {
       if (state.role !== "super") return;
-      document.getElementById("modalTitle").textContent = "Activity Log";
-      document.getElementById("modalBody").innerHTML = state.activity.length
-        ? `<div class="activity-list">${state.activity.map(item => `
-            <div class="item">
-              <div>
-                <div class="item-name">${escapeHtml(item.action || "Activity")}</div>
-                <div class="item-sub">${escapeHtml(item.user || "-")} | ${escapeHtml(item.role || "-")} | ${formatDateTime(item.time)}</div>
-                <div class="item-sub">${escapeHtml(item.details || "-")}</div>
+
+      const stopLoading = startLoading("activity", "Loading...");
+      if (!stopLoading) return;
+      try {
+        const res = await fetch(`${API_BASE}?action=getActivity`);
+        const data = await res.json();
+        const websiteActivity = state.activity.filter(item => item.role === "admin" || item.role === "member");
+        const adminActivity = websiteActivity.filter(item => item.role === "admin");
+        const memberActivity = websiteActivity.filter(item => item.role === "member");
+        const sheetActivity = Array.isArray(data.sheetActivity) ? data.sheetActivity : [];
+
+        document.getElementById("modalTitle").textContent = "Activity Log";
+        document.getElementById("modalBody").innerHTML = `
+          ${renderActivityGroup("Admin Website Activity", adminActivity)}
+          ${renderActivityGroup("Member Website Activity", memberActivity)}
+          ${renderSheetActivityGroup(sheetActivity)}
+        `;
+        document.getElementById("modalActions").innerHTML = `<button class="btn red" onclick="clearActivityLog()">Clear Website Activity</button>`;
+        document.querySelector("#modalBackdrop .modal-card").classList.add("wide-modal");
+        openModal();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load activity");
+      } finally {
+        stopLoading();
+      }
+    }
+
+    function renderActivityGroup(title, items) {
+      return `
+        <div class="panel" style="margin-bottom:12px">
+          <h4>${escapeHtml(title)}</h4>
+          <div class="activity-list">
+            ${items.length ? items.map(item => `
+              <div class="item">
+                <div>
+                  <div class="item-name">${escapeHtml(item.action || "Activity")}</div>
+                  <div class="item-sub">${escapeHtml(item.user || "-")} | ${escapeHtml(item.role || "-")} | ${formatDateTime(item.time)}</div>
+                  <div class="item-sub">${escapeHtml(item.details || "-")}</div>
+                </div>
               </div>
-            </div>
-          `).join("")}</div>`
-        : `<div class="item"><div><div class="item-name">No activity yet</div><div class="item-sub">Activity will appear after users take actions in this browser.</div></div></div>`;
-      document.getElementById("modalActions").innerHTML = `<button class="btn red" onclick="clearActivityLog()">Clear Activity</button>`;
-      document.querySelector("#modalBackdrop .modal-card").classList.add("wide-modal");
-      openModal();
+            `).join("") : `<div class="item"><div><div class="item-name">No activity</div></div></div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSheetActivityGroup(items) {
+      return `
+        <div class="panel">
+          <h4>Sheet Activity</h4>
+          <div class="activity-list">
+            ${items.length ? items.map(item => `
+              <div class="item">
+                <div>
+                  <div class="item-name">${escapeHtml(item.mail || "Good mail")}</div>
+                  <div class="item-sub">Member: ${escapeHtml(item.member || "-")} | Seller: ${escapeHtml(item.seller || "-")} | Sheet: ${escapeHtml(item.sheet || "-")}</div>
+                  <div class="item-sub">${formatDateTime(item.detectedAt)}</div>
+                </div>
+              </div>
+            `).join("") : `<div class="item"><div><div class="item-name">No sheet activity</div></div></div>`}
+          </div>
+        </div>
+      `;
     }
 
     function clearActivityLog() {
@@ -2190,6 +2745,8 @@
     }
 
     async function refreshData() {
+      const stopLoading = startLoading("refresh", "Refreshing...");
+      if (!stopLoading) return;
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
@@ -2207,27 +2764,35 @@
         state.lastUpdate = new Date();
         document.getElementById("lastUpdateTime").textContent = `Last update: ${formatDateTime(state.lastUpdate)}`;
 
-        if (state.role) {
+        if (!state.role) {
+          restoreLoginSession();
+        } else {
+          saveLoginSession();
           renderDashboardByRole();
         }
       } catch (err) {
         console.error(err);
         const msg = document.getElementById("loginMessage");
         if (msg) msg.textContent = "Failed to fetch dashboard data.";
+      } finally {
+        stopLoading();
       }
     }
 
-    function showDashboard() {
+    function showDashboard(activityLabel = "Login") {
       document.getElementById("loginPage").classList.add("hidden");
       document.getElementById("dashboardPage").classList.remove("hidden");
-      logActivity("Login", state.memberName || state.role || "unknown");
+      saveLoginSession();
+      logActivity(activityLabel, state.memberName || state.role || "unknown");
       renderDashboardByRole();
     }
 
     function logout() {
+      const previousUser = state.memberName || state.role || "unknown";
+      logActivity("Logout", previousUser);
+      clearLoginSession();
       state.role = null;
       state.memberName = null;
-      logActivity("Logout", state.memberName || state.role || "unknown");
       document.getElementById("dashboardPage").classList.add("hidden");
       document.getElementById("loginPage").classList.remove("hidden");
       document.getElementById("loginPassword").value = "";
@@ -2262,6 +2827,7 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
       if (raw === SUPER_ADMIN_PASSWORD) {
         state.role = "super";
         state.memberName = null;
+        saveLoginSession();
         showDashboard();
         return;
       }
@@ -2269,6 +2835,7 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
       if (raw === ADMIN_PASSWORD) {
         state.role = "admin";
         state.memberName = null;
+        saveLoginSession();
         showDashboard();
         return;
       }
@@ -2278,6 +2845,7 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
       if (matchedMember) {
         state.role = "member";
         state.memberName = matchedMember;
+        saveLoginSession();
         showDashboard();
         return;
       }
