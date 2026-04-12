@@ -233,6 +233,15 @@
       transform:none;
     }
 
+    .nav-icon{
+      display:inline-grid;
+      place-items:center;
+      width:18px;
+      margin-right:7px;
+      font-size:14px;
+      line-height:1;
+    }
+
     .global-loader{
       position:fixed;
       top:18px;
@@ -1255,15 +1264,15 @@
         </div>
 
         <div class="top-actions">
-          <button class="btn" onclick="showSection('statsSection')">Home</button>
-          <button class="btn" onclick="showSection('problemSection')">Problems</button>
-          <button class="btn" onclick="showSection('recentSection')">Recent</button>
-          <button class="btn" onclick="showSection('paymentSection')">Payment</button>
-          <button class="btn" onclick="showSection('exportSection')" data-admin-only="true">Export</button>
-          <button class="btn" onclick="showActivityPanel()" id="activityNavBtn">Activity</button>
-          <button class="btn" onclick="refreshData()">Refresh</button>
+          <button class="btn" onclick="showSection('statsSection')"><span class="nav-icon">⌂</span>Home</button>
+          <button class="btn" onclick="showSection('problemSection')"><span class="nav-icon">!</span>Problems</button>
+          <button class="btn" onclick="showSection('recentSection')"><span class="nav-icon">↺</span>Recent</button>
+          <button class="btn" onclick="showSection('paymentSection')"><span class="nav-icon">$</span>Payment</button>
+          <button class="btn" onclick="showSection('exportSection')" data-admin-only="true"><span class="nav-icon">⇩</span>Export</button>
+          <button class="btn" onclick="showActivityPanel()" id="activityNavBtn"><span class="nav-icon">◎</span>Activity</button>
+          <button class="btn" onclick="refreshData()"><span class="nav-icon">⟳</span>Refresh</button>
           <div class="top-meta" id="lastUpdateTime">Last update: -</div>
-          <button class="btn red" onclick="logout()">Logout</button>
+          <button class="btn red" onclick="logout()"><span class="nav-icon">×</span>Logout</button>
         </div>
       </div>
 
@@ -1675,7 +1684,9 @@
     function setupCardClicks() {
       document.addEventListener("click", (e) => {
         if (e.target.closest("input, select, textarea, option, .input, .select")) return;
-        const card = e.target.closest(".clickable-card");
+        const navButton = e.target.closest(".top-actions .btn");
+        if (!navButton) return;
+        const card = navButton.closest(".topbar.clickable-card");
         if (!card) return;
         const rect = card.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 100;
