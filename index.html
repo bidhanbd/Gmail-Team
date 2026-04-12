@@ -128,22 +128,25 @@
       position:absolute;
       inset:-1px;
       border-radius:inherit;
-      padding:1.5px;
-      background:conic-gradient(from 0deg, transparent, rgba(71,167,255,.95), rgba(138,92,255,.95), rgba(69,243,255,.95), rgba(255,95,125,.95), transparent);
+      padding:1px;
+      background:linear-gradient(135deg, rgba(71,167,255,.9), rgba(46,232,135,.72), rgba(255,199,95,.74));
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
       -webkit-mask-composite:xor;
       mask-composite:exclude;
       opacity:0;
-      filter:drop-shadow(0 0 14px rgba(71,167,255,.28));
-      animation:ringSpin 1.7s linear infinite;
+      filter:drop-shadow(0 0 12px rgba(71,167,255,.24));
       z-index:2;
       pointer-events:none;
     }
 
-    .fire-ring.active::after{opacity:1}
-    @keyframes ringSpin{to{transform:rotate(360deg)}}
+    .fire-ring.active::after{animation:smartGlow 1.15s ease both}
+    @keyframes smartGlow{
+      0%{opacity:0;transform:scale(.995)}
+      35%{opacity:1;transform:scale(1)}
+      100%{opacity:0;transform:scale(1.006)}
+    }
 
     .btn{
       border:none;
@@ -301,12 +304,15 @@
     }
 
     .topbar{
+      position:sticky;
+      top:12px;
+      z-index:30;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:14px;
       flex-wrap:wrap;
-      padding:18px 20px;
+      padding:14px 16px;
       margin-bottom:18px;
     }
 
@@ -323,8 +329,38 @@
       display:grid;
       place-items:center;
       font-size:24px;
-      background:linear-gradient(145deg, rgba(71,167,255,.22), rgba(138,92,255,.24));
-      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.96);
+      border:1px solid rgba(255,255,255,.20);
+    }
+
+    .gmail-logo{
+      position:relative;
+      color:#202124;
+      font-weight:900;
+      letter-spacing:0;
+      overflow:hidden;
+    }
+
+    .gmail-logo::before,
+    .gmail-logo::after{
+      content:"";
+      position:absolute;
+      height:6px;
+      border-radius:6px;
+      top:16px;
+      width:24px;
+    }
+
+    .gmail-logo::before{
+      left:8px;
+      background:#ea4335;
+      transform:rotate(35deg);
+    }
+
+    .gmail-logo::after{
+      right:8px;
+      background:#4285f4;
+      transform:rotate(-35deg);
     }
 
     .brand h1{
@@ -346,13 +382,27 @@
       display:flex;
       gap:10px;
       flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .top-meta{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      padding:9px 11px;
+      border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      white-space:nowrap;
     }
 
     .chart-grid{
       display:grid;
-      grid-template-columns:1.15fr .85fr;
+      grid-template-columns:.35fr 1.65fr;
       gap:18px;
       margin-bottom:18px;
+      align-items:start;
     }
 
     .section{
@@ -380,8 +430,71 @@
     }
 
     .chart-box{
-      height:210px;
-      max-height:210px;
+      height:64px;
+      max-height:64px;
+    }
+
+    .compact-chart-section{
+      padding:16px;
+    }
+
+    .compact-chart-section .section-head{
+      margin-bottom:10px;
+    }
+
+    .overview-mini-stats{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .mini-stat{
+      padding:10px;
+      border-radius:14px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .mini-stat span{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:800;
+      margin-bottom:5px;
+    }
+
+    .mini-stat strong{
+      display:block;
+      font-size:19px;
+      line-height:1.1;
+    }
+
+    .compact-rank-section{
+      padding:16px;
+    }
+
+    .compact-rank-section .section-head{
+      margin-bottom:10px;
+    }
+
+    .compact-rank-section .ranking-col{
+      padding:12px;
+    }
+
+    .compact-rank-section .list{
+      gap:8px;
+      max-height:245px;
+      overflow:auto;
+    }
+
+    .compact-rank-section .item{
+      padding:10px 12px;
+      min-height:0;
+    }
+
+    .compact-rank-section .item-name{
+      margin-bottom:2px;
     }
 
     .stats-grid{
@@ -531,6 +644,18 @@
       white-space:nowrap;
     }
 
+    .pill.due{
+      color:#ffd1d8;
+      border-color:rgba(255,95,125,.28);
+      background:rgba(255,95,125,.14);
+    }
+
+    .pill.paid{
+      color:#aaffcf;
+      border-color:rgba(46,232,135,.24);
+      background:rgba(46,232,135,.12);
+    }
+
     .right-stack{
       display:grid;
       gap:18px;
@@ -636,6 +761,11 @@
 
     tr:last-child td{border-bottom:none}
 
+    .hide-seller-column th:nth-child(2),
+    .hide-seller-column td:nth-child(2){
+      display:none;
+    }
+
     .tag{
       display:inline-flex;
       align-items:center;
@@ -699,6 +829,18 @@
       padding:22px;
     }
 
+    .wide-modal{
+      width:min(920px, 100%);
+      max-height:82vh;
+      overflow:auto;
+    }
+
+    .activity-list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
     .modal-title{
       font-size:24px;
       font-weight:800;
@@ -740,6 +882,7 @@
       .stat-value{font-size:32px}
       th,td{padding:12px;font-size:12px}
       .top-actions .btn{flex:1}
+      .top-meta{width:100%;text-align:center}
     }
   </style>
 </head>
@@ -755,7 +898,7 @@
       <div class="login-shell">
         <div class="glass animated-card login-left fire-ring clickable-card">
           <div>
-            <div class="login-badge">✦ Animated Secure Entry</div>
+            <div class="login-badge">Work Smart. Earn Better. Grow Faster. 🚀</div>
             <div class="login-title">Gmail Team Pro</div>
             <div class="login-sub">
               Team member হলে নিজের নামটাই password.
@@ -781,7 +924,7 @@
     <section id="dashboardPage" class="page hidden">
       <div class="glass animated-card topbar fire-ring clickable-card">
         <div class="brand">
-          <div class="brand-badge">✦</div>
+          <div class="brand-badge gmail-logo">M</div>
           <div>
             <h1>Gmail Team Pro</h1>
             <p id="topRoleLabel">Premium live dashboard</p>
@@ -789,14 +932,23 @@
         </div>
 
         <div class="top-actions">
+          <button class="btn" onclick="showSection('overviewSection')">Overview</button>
+          <button class="btn" onclick="showSection('statsSection')">Stats</button>
+          <button class="btn" onclick="showSection('sellerSection')" data-admin-only="true">Sellers</button>
+          <button class="btn" onclick="showSection('problemSection')">Problems</button>
+          <button class="btn" onclick="showSection('recentSection')">Recent</button>
+          <button class="btn" onclick="showSection('paymentSection')">Payment</button>
+          <button class="btn" onclick="showSection('rateSection')" data-admin-only="true">Rates</button>
+          <button class="btn" onclick="showSection('exportSection')" data-admin-only="true">Export</button>
+          <button class="btn" onclick="showActivityPanel()" id="activityNavBtn">Activity</button>
           <button class="btn" onclick="refreshData()">Refresh</button>
-          <button class="btn" onclick="copySummary()">Copy Summary</button>
+          <div class="top-meta" id="lastUpdateTime">Last update: -</div>
           <button class="btn red" onclick="logout()">Logout</button>
         </div>
       </div>
 
-      <div class="chart-grid">
-        <div class="glass animated-card section fire-ring clickable-card">
+      <div class="chart-grid" id="overviewSection">
+        <div class="glass animated-card section compact-chart-section fire-ring clickable-card">
           <div class="section-head">
             <div>
               <h3>Live Overview</h3>
@@ -806,9 +958,15 @@
           <div class="chart-box">
             <canvas id="mainChart"></canvas>
           </div>
+          <div class="overview-mini-stats">
+            <div class="mini-stat"><span>Total Mails</span><strong id="miniTotalMails">0</strong></div>
+            <div class="mini-stat"><span>Good</span><strong id="miniGoodMails">0</strong></div>
+            <div class="mini-stat"><span>Problem</span><strong id="miniProblemMails">0</strong></div>
+            <div class="mini-stat"><span>Member Payment</span><strong id="miniTeamPayment">0</strong></div>
+          </div>
         </div>
 
-        <div class="glass animated-card section fire-ring clickable-card">
+        <div class="glass animated-card section compact-rank-section fire-ring clickable-card">
           <div class="section-head">
             <div>
               <h3>Top Performers</h3>
@@ -821,7 +979,7 @@
               <h4>Top Members</h4>
               <div class="list" id="topMembersList"></div>
             </div>
-            <div class="ranking-col">
+            <div class="ranking-col" id="topSellersColumn">
               <h4>Top Sellers</h4>
               <div class="list" id="topSellersList"></div>
             </div>
@@ -829,7 +987,7 @@
         </div>
       </div>
 
-      <div class="stats-grid">
+      <div class="stats-grid" id="statsSection">
         <div class="glass animated-card stat-card fire-ring clickable-card">
           <div class="stat-top">
             <div class="label">Total Mails</div>
@@ -868,7 +1026,7 @@
 
         <div class="glass animated-card stat-card fire-ring clickable-card">
           <div class="stat-top">
-            <div class="label">Team Payment</div>
+            <div class="label">Member Payment</div>
             <div class="icon">💸</div>
           </div>
           <div class="stat-value" id="totalPayment">0</div>
@@ -881,7 +1039,7 @@
 
       <div class="content-grid">
         <div class="left-stack">
-          <div class="glass animated-card section fire-ring clickable-card">
+          <div class="glass animated-card section fire-ring clickable-card" id="sellerSection">
             <div class="section-head">
               <div>
                 <h3>Seller Breakdown</h3>
@@ -902,7 +1060,7 @@
             </div>
           </div>
 
-          <div class="glass animated-card section fire-ring clickable-card">
+          <div class="glass animated-card section fire-ring clickable-card" id="problemSection">
             <div class="section-head">
               <div>
                 <h3>Problem Breakdown</h3>
@@ -912,7 +1070,7 @@
             <div class="list" id="problemBreakdownList"></div>
           </div>
 
-          <div class="glass animated-card section fire-ring clickable-card">
+          <div class="glass animated-card section fire-ring clickable-card" id="recentSection">
             <div class="section-head">
               <div>
                 <h3>Recent Mail Status</h3>
@@ -938,7 +1096,7 @@
         </div>
 
         <div class="right-stack">
-          <div class="glass animated-card section fire-ring clickable-card">
+          <div class="glass animated-card section fire-ring clickable-card" id="paymentSection">
             <div class="section-head">
               <div>
                 <h3>Payment Panel</h3>
@@ -947,7 +1105,7 @@
             </div>
 
             <div class="payment-box">
-              <div class="small">Current Team Payment</div>
+              <div class="small">Total Member Payment</div>
               <div class="big" id="paymentBig">0</div>
             </div>
 
@@ -967,6 +1125,13 @@
               <div class="kv-row" id="sellerPaymentRow">
                 <span>Total Seller Payment</span>
                 <strong id="sellerPaymentView">0</strong>
+              </div>
+              <div class="kv-row" id="sellerCurrencyRow">
+                <span>Seller Currency</span>
+                <select id="sellerCurrencySelect" class="select" onchange="setSellerCurrency()">
+                  <option value="usd">USD</option>
+                  <option value="bdt">BDT</option>
+                </select>
               </div>
             </div>
           </div>
@@ -994,7 +1159,7 @@
             </div>
           </div>
 
-          <div class="glass animated-card section fire-ring clickable-card">
+          <div class="glass animated-card section fire-ring clickable-card" id="exportSection">
             <div class="section-head">
               <div>
                 <h3>Export Navigation</h3>
@@ -1083,6 +1248,7 @@
 
     const state = {
       rawData: null,
+      lastUpdate: null,
       role: null,
       memberName: null,
       stats: {
@@ -1104,6 +1270,10 @@
       sellerNames: [],
       teamRate: 0,
       sellerRates: {},
+      sellerCurrency: "usd",
+      usdToBdt: 120,
+      resetBaselines: { members: {}, sellers: {} },
+      activity: [],
       history: {
         totalGood: 0,
         totalPayment: 0,
@@ -1114,7 +1284,24 @@
 
     function formatNumber(num){ return Number(num || 0).toLocaleString(); }
     function formatCurrency(num){ return Number(num || 0).toLocaleString(); }
+    function formatMemberPayment(num){ return `৳${formatNumber(num || 0)}`; }
+    function formatSellerPayment(num){
+      const value = Number(num || 0);
+      if (state.sellerCurrency === "bdt") return `৳${formatNumber(value * state.usdToBdt)}`;
+      return `$${formatNumber(value)}`;
+    }
+    function paymentStatusPill(payment){
+      return Number(payment || 0) > 0
+        ? `<span class="pill due">Due</span>`
+        : `<span class="pill paid">Paid</span>`;
+    }
     function percent(part, total){ if (!total) return "0%"; return ((part / total) * 100).toFixed(1) + "%"; }
+    function cleanKey(value){ return String(value || "").trim().toLowerCase(); }
+
+    function formatDateTime(value) {
+      if (!value) return "-";
+      return new Date(value).toLocaleString();
+    }
 
     function escapeHtml(str = "") {
       return String(str)
@@ -1145,6 +1332,10 @@
         const payment = Number(el.dataset.payment || 0);
 
         if (!type || !name) return;
+        if (type === "seller") {
+          showSellerGoodHistory(encodeURIComponent(name), good, payment);
+          return;
+        }
         showEntityHistory(type, name, good, payment);
       });
     }
@@ -1154,11 +1345,61 @@
       localStorage.setItem("gmailTeamPro_sellerRates", JSON.stringify(state.sellerRates || {}));
     }
 
+    function saveResetBaselinesToLocal() {
+      localStorage.setItem("gmailTeamPro_resetBaselines", JSON.stringify(state.resetBaselines || { members: {}, sellers: {} }));
+    }
+
+    function loadResetBaselinesFromLocal() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("gmailTeamPro_resetBaselines") || "{}");
+        state.resetBaselines = {
+          members: saved.members || {},
+          sellers: saved.sellers || {}
+        };
+      } catch (err) {
+        state.resetBaselines = { members: {}, sellers: {} };
+      }
+    }
+
+    function saveActivityToLocal() {
+      localStorage.setItem("gmailTeamPro_activity", JSON.stringify(state.activity.slice(0, 250)));
+    }
+
+    function loadActivityFromLocal() {
+      try {
+        state.activity = JSON.parse(localStorage.getItem("gmailTeamPro_activity") || "[]");
+      } catch (err) {
+        state.activity = [];
+      }
+    }
+
+    function logActivity(action, details = "") {
+      const entry = {
+        time: new Date().toISOString(),
+        role: state.role || "guest",
+        user: state.memberName || (state.role === "super" ? "Super Admin" : state.role === "admin" ? "Admin" : "Guest"),
+        action,
+        details
+      };
+      state.activity.unshift(entry);
+      saveActivityToLocal();
+    }
+
     function loadRatesFromLocal() {
       state.teamRate = Number(localStorage.getItem("gmailTeamPro_teamRate") || 0);
       state.sellerRates = JSON.parse(localStorage.getItem("gmailTeamPro_sellerRates") || "{}");
+      state.sellerCurrency = localStorage.getItem("gmailTeamPro_sellerCurrency") || "usd";
       const teamRateInput = document.getElementById("teamRateInput");
+      const sellerCurrencySelect = document.getElementById("sellerCurrencySelect");
       if (teamRateInput) teamRateInput.value = state.teamRate || "";
+      if (sellerCurrencySelect) sellerCurrencySelect.value = state.sellerCurrency;
+    }
+
+    function setSellerCurrency() {
+      const select = document.getElementById("sellerCurrencySelect");
+      state.sellerCurrency = select ? select.value : "usd";
+      localStorage.setItem("gmailTeamPro_sellerCurrency", state.sellerCurrency);
+      renderDashboardByRole();
     }
 
     function mapApiToState(data) {
@@ -1188,7 +1429,38 @@
 
       populateSellerSelect();
       populateExportSellerSelect();
+      if (!data.historySynced) {
+        applyResetBaselines();
+      }
       recalculatePayments();
+    }
+
+    function applyResetBaselines() {
+      state.members = state.members.map(member => {
+        const key = cleanKey(member.name);
+        const baseline = Number(state.resetBaselines.members[key]?.good || 0);
+        const rawGood = Number(member.good || 0);
+        const good = Math.max(0, rawGood - baseline);
+        const problem = Number(member.problem || 0);
+        return { ...member, rawGood, good, total: good + problem };
+      });
+
+      const applySellerBaseline = seller => {
+        const key = cleanKey(seller.name);
+        const baseline = Number(state.resetBaselines.sellers[key]?.good || 0);
+        const rawGood = Number(seller.good || 0);
+        const good = Math.max(0, rawGood - baseline);
+        const problem = Number(seller.problem || 0);
+        return { ...seller, rawGood, good, total: good + problem };
+      };
+
+      state.sellers.sheet1 = state.sellers.sheet1.map(applySellerBaseline);
+      state.sellers.other = state.sellers.other.map(applySellerBaseline);
+      state.stats.good = state.members.reduce((sum, item) => sum + Number(item.good || 0), 0);
+      state.stats.problem = state.members.reduce((sum, item) => sum + Number(item.problem || 0), 0);
+      state.stats.total = state.stats.good + state.stats.problem;
+      state.stats.sheet1Good = state.sellers.sheet1.reduce((sum, item) => sum + Number(item.good || 0), 0);
+      state.stats.otherGood = state.sellers.other.reduce((sum, item) => sum + Number(item.good || 0), 0);
     }
 
     function populateSellerSelect() {
@@ -1227,6 +1499,7 @@
 
       saveRatesToLocal();
       recalculatePayments();
+      logActivity("Rate update", seller ? `Seller: ${seller}, Rate: ${sellerRate}, Member Rate: ${state.teamRate}` : `Member Rate: ${state.teamRate}`);
       renderDashboardByRole();
     }
 
@@ -1253,17 +1526,35 @@
 
     function renderStats(customStats = null) {
       const s = customStats || state.stats;
+      const teamPayment = Object.prototype.hasOwnProperty.call(s, "teamPayment") ? s.teamPayment : state.stats.totalTeamPayment;
+      const sellerPayment = Object.prototype.hasOwnProperty.call(s, "sellerPayment") ? s.sellerPayment : state.stats.totalSellerPayment;
       document.getElementById("totalMails").textContent = formatNumber(s.total || 0);
       document.getElementById("goodMails").textContent = formatNumber(s.good || 0);
       document.getElementById("problemMails").textContent = formatNumber(s.problem || 0);
-      document.getElementById("totalPayment").textContent = formatCurrency(s.teamPayment || state.stats.totalTeamPayment);
-      document.getElementById("paymentBig").textContent = formatCurrency(s.teamPayment || state.stats.totalTeamPayment);
+      document.getElementById("totalPayment").textContent = formatMemberPayment(teamPayment);
+      document.getElementById("paymentBig").textContent = formatMemberPayment(teamPayment);
       document.getElementById("goodRate").textContent = percent(s.good || 0, s.total || 0);
       document.getElementById("problemRate").textContent = percent(s.problem || 0, s.total || 0);
       document.getElementById("sheet1Good").textContent = formatNumber(s.sheet1Good || 0);
       document.getElementById("otherGood").textContent = formatNumber(s.otherGood || 0);
-      document.getElementById("teamRateView").textContent = formatNumber(state.teamRate);
-      document.getElementById("sellerPaymentView").textContent = formatCurrency(s.sellerPayment || state.stats.totalSellerPayment);
+      document.getElementById("teamRateView").textContent = formatMemberPayment(state.teamRate);
+      document.getElementById("sellerPaymentView").textContent = formatSellerPayment(sellerPayment);
+      renderMiniStats(s, teamPayment);
+    }
+
+    function renderMiniStats(stats, teamPayment) {
+      const items = {
+        miniTotalMails: stats.total || 0,
+        miniGoodMails: stats.good || 0,
+        miniProblemMails: stats.problem || 0,
+        miniTeamPayment: teamPayment || 0
+      };
+
+      Object.keys(items).forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = id === "miniTeamPayment" ? formatMemberPayment(items[id]) : formatNumber(items[id]);
+      });
     }
 
     function renderSellerList(targetId, items) {
@@ -1291,11 +1582,12 @@
               Good: ${formatNumber(item.good || 0)} •
               Problem: ${formatNumber(item.problem || 0)} •
               Rate: ${formatNumber(item.rate || 0)} •
-              Payment: ${formatCurrency(item.payment || 0)}
+              Payment: ${formatSellerPayment(item.payment || 0)} • ${paymentStatusPill(item.payment || 0)}
             </div>
           </div>
           <div class="item-side">
             <span class="pill">${formatNumber(item.total || 0)} total</span>
+            ${(state.role === "admin" || state.role === "super") ? `<button class="btn red" onclick="resetSpecificSeller('${encodeURIComponent(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">Reset</button>` : ""}
           </div>
         </div>
       `).join("");
@@ -1326,11 +1618,13 @@
               Total: ${formatNumber(item.total || 0)} •
               Problem: ${formatNumber(item.problem || 0)} •
               Rate: ${formatNumber(item.rate || 0)} •
-              Payment: ${formatCurrency(item.payment || 0)}
+              Payment: ${formatMemberPayment(item.payment || 0)} • ${paymentStatusPill(item.payment || 0)}
             </div>
           </div>
           <div class="item-side">
             <span class="pill">${formatNumber(item.good || 0)} good</span>
+            ${paymentStatusPill(item.payment || 0)}
+            ${state.role === "member" ? "" : `<button class="btn red" onclick="resetSpecificMember('${encodeURIComponent(item.name || "")}', ${Number(item.good || 0)}, ${Number(item.payment || 0)})">Reset</button>`}
           </div>
         </div>
       `).join("");
@@ -1358,9 +1652,11 @@
       `).join("");
     }
 
-    function renderRecent(rows) {
+    function renderRecent(rows, hideSeller = false) {
       const target = document.getElementById("recentTable");
       if (!target) return;
+      const table = target.closest("table");
+      if (table) table.classList.toggle("hide-seller-column", hideSeller);
 
       if (!rows || !rows.length) {
         target.innerHTML = `<tr><td colspan="5">No records found</td></tr>`;
@@ -1374,7 +1670,7 @@
         return `
           <tr>
             <td>${escapeHtml(row.mail || "-")}</td>
-            <td>${escapeHtml(row.seller || "-")}</td>
+            <td>${hideSeller ? "Hidden" : escapeHtml(row.seller || "-")}</td>
             <td>${escapeHtml(row.member || "-")}</td>
             <td><span class="tag ${cls}">${escapeHtml(row.status || "-")}</span></td>
             <td>${escapeHtml(row.sourceSheet || "-")}</td>
@@ -1383,15 +1679,19 @@
       }).join("");
     }
 
+    function findSellerByName(name) {
+      return [...state.sellers.sheet1, ...state.sellers.other].find(item => cleanKey(item.name) === cleanKey(name)) || null;
+    }
+
     function renderRanking() {
       const memberTarget = document.getElementById("topMembersList");
       const sellerTarget = document.getElementById("topSellersList");
 
       const topMembers = Array.isArray(state.ranking.topMembers) ? state.ranking.topMembers : [];
-      const topSellers = Array.isArray(state.ranking.topSellers) ? state.ranking.topSellers : [];
+      const topSellers = state.role === "member" ? [] : (Array.isArray(state.ranking.topSellers) ? state.ranking.topSellers : []);
 
       memberTarget.innerHTML = topMembers.length
-        ? topMembers.map(item => `
+        ? topMembers.slice(0, 3).map(item => `
             <div class="item">
               <div>
                 <div class="item-name">${escapeHtml(item.name)}</div>
@@ -1403,15 +1703,26 @@
         : `<div class="item"><div><div class="item-name">No data</div></div></div>`;
 
       sellerTarget.innerHTML = topSellers.length
-        ? topSellers.map(item => `
-            <div class="item">
-              <div>
-                <div class="item-name">${escapeHtml(item.name)}</div>
-                <div class="item-sub">Good: ${formatNumber(item.good || 0)}</div>
+        ? topSellers.slice(0, 3).map(item => {
+            const seller = findSellerByName(item.name) || item;
+            const good = Number(seller.good ?? item.good ?? 0);
+            const payment = Number(seller.payment || 0);
+            return `
+              <div class="item">
+                <div>
+                  <div
+                    class="item-name clickable"
+                    title="Click to view good mail history"
+                    onclick="showSellerGoodHistory('${encodeURIComponent(item.name || "")}', ${good}, ${payment})"
+                  >${escapeHtml(item.name)}</div>
+                  <div class="item-sub">Good: ${formatNumber(good)} • Payment: ${formatSellerPayment(payment)} • ${paymentStatusPill(payment)}</div>
+                </div>
+                <div class="item-side">
+                  <button class="btn red" onclick="resetSpecificSeller('${encodeURIComponent(item.name || "")}', ${good}, ${payment})">Reset</button>
+                </div>
               </div>
-              <div class="item-side"><span class="pill">#</span></div>
-            </div>
-          `).join("")
+            `;
+          }).join("")
         : `<div class="item"><div><div class="item-name">No data</div></div></div>`;
     }
 
@@ -1452,17 +1763,19 @@
 
     async function showEntityHistory(type, name, good, payment) {
       try {
-        const res = await fetch(`${API_BASE}?action=history&type=${encodeURIComponent(type)}&name=${encodeURIComponent(name)}`);
+        if (state.role === "member" && type === "seller") return;
+        logActivity("History view", `${type}: ${name}`);
+        const res = await fetch(`${API_BASE}?action=getHistory&type=${encodeURIComponent(type)}&name=${encodeURIComponent(name)}`);
         const data = await res.json();
 
         document.getElementById("modalTitle").textContent = `${name} History`;
 
         document.getElementById("modalBody").innerHTML = `
-          <div class="kv-row"><span>Total Good</span><strong>${formatNumber(data.totalGood || 0)}</strong></div>
-          <div class="kv-row"><span>Total Payment</span><strong>${formatCurrency(data.totalPayment || 0)}</strong></div>
+          <div class="kv-row"><span>Total Good (All Time)</span><strong>${formatNumber(data.totalGood || 0)}</strong></div>
+          <div class="kv-row"><span>Total Payment (All Time)</span><strong>${formatMemberPayment(data.totalPayment || 0)}</strong></div>
           <div class="kv-row"><span>Last Reset Date</span><strong>${data.lastResetDate ? new Date(data.lastResetDate).toLocaleString() : "-"}</strong></div>
           <div class="kv-row"><span>Current Good</span><strong>${formatNumber(good || 0)}</strong></div>
-          <div class="kv-row"><span>Current Payment</span><strong>${formatCurrency(payment || 0)}</strong></div>
+          <div class="kv-row"><span>Current Payment</span><strong>${formatMemberPayment(payment || 0)}</strong></div>
         `;
 
         const actions = document.getElementById("modalActions");
@@ -1489,11 +1802,12 @@
 
     function closeModal() {
       document.getElementById("modalBackdrop").classList.remove("show");
+      document.querySelector("#modalBackdrop .modal-card").classList.remove("wide-modal");
     }
 
     async function loadMemberOwnHistory(memberName) {
       try {
-        const res = await fetch(`${API_BASE}?action=history&type=member&name=${encodeURIComponent(memberName)}`);
+        const res = await fetch(`${API_BASE}?action=getHistory&type=member&name=${encodeURIComponent(memberName)}`);
         const data = await res.json();
 
         state.history.totalGood = Number(data.totalGood || 0);
@@ -1501,7 +1815,7 @@
         state.history.lastResetDate = data.lastResetDate || "";
 
         document.getElementById("historyGood").textContent = formatNumber(state.history.totalGood);
-        document.getElementById("historyPayment").textContent = formatCurrency(state.history.totalPayment);
+        document.getElementById("historyPayment").textContent = formatMemberPayment(state.history.totalPayment);
         document.getElementById("historyDate").textContent = state.history.lastResetDate
           ? new Date(state.history.lastResetDate).toLocaleString()
           : "-";
@@ -1543,7 +1857,15 @@
           return;
         }
 
+        state.resetBaselines.members[cleanKey(state.memberName)] = {
+          good: Number(currentMember?.rawGood || currentMember?.good || 0),
+          payment: currentPayment,
+          time: new Date().toISOString()
+        };
+        saveResetBaselinesToLocal();
+        logActivity("Member reset", state.memberName);
         alert("Reset done");
+        await refreshData();
         await loadMemberOwnHistory(state.memberName);
       } catch (err) {
         console.error(err);
@@ -1571,11 +1893,67 @@
           return;
         }
 
+        const currentMember = state.members.find(item => cleanKey(item.name) === cleanKey(name));
+        state.resetBaselines.members[cleanKey(name)] = {
+          good: Number(currentMember?.rawGood ?? good ?? 0),
+          payment: Number(payment || 0),
+          time: new Date().toISOString()
+        };
+        saveResetBaselinesToLocal();
+        logActivity("Member reset", name);
         alert("Member reset done");
         closeModal();
+        await refreshData();
       } catch (err) {
         console.error(err);
         alert("Reset failed");
+      }
+    }
+
+    async function showSellerGoodHistory(encodedName, good = 0, payment = 0) {
+      if (state.role === "member") return;
+
+      const name = decodeURIComponent(encodedName);
+      try {
+        logActivity("Seller good history", name);
+        const [historyRes, exportRes] = await Promise.all([
+          fetch(`${API_BASE}?action=getHistory&type=seller&name=${encodeURIComponent(name)}`),
+          fetch(`${API_BASE}?action=export&exportType=sellerGood&seller=${encodeURIComponent(name)}`)
+        ]);
+        const historyData = await historyRes.json();
+        const exportData = await exportRes.json();
+        const rows = Array.isArray(exportData.rows) ? exportData.rows : [];
+        const visibleRows = rows.slice(0, 80);
+        const historyBlock = `
+          <div class="kv-row"><span>Total Good (All Time)</span><strong>${formatNumber(historyData.totalGood || 0)}</strong></div>
+          <div class="kv-row"><span>Total Payment (All Time)</span><strong>${formatSellerPayment(historyData.totalPayment || 0)}</strong></div>
+          <div class="kv-row"><span>Last Reset Date</span><strong>${historyData.lastResetDate ? new Date(historyData.lastResetDate).toLocaleString() : "-"}</strong></div>
+          <div class="kv-row"><span>Current Good</span><strong>${formatNumber(good || rows.length || 0)}</strong></div>
+          <div class="kv-row"><span>Current Payment</span><strong>${formatSellerPayment(payment || 0)}</strong></div>
+        `;
+
+        document.getElementById("modalTitle").textContent = `${name} Seller History`;
+        document.getElementById("modalBody").innerHTML = rows.length
+          ? `
+            ${historyBlock}
+            <div class="activity-list">
+              ${visibleRows.map(row => `
+                <div class="item">
+                  <div>
+                    <div class="item-name">${escapeHtml(row.mail || "-")}</div>
+                    <div class="item-sub">Member: ${escapeHtml(row.member || "-")} | Sheet: ${escapeHtml(row.sheet || row.sourceSheet || "-")} | Status: ${escapeHtml(row.status || "ok")}</div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : `${historyBlock}<div class="item"><div><div class="item-name">No good mail found</div><div class="item-sub">No seller good export data returned.</div></div></div>`;
+        document.getElementById("modalActions").innerHTML = `<button class="btn red" onclick="resetSpecificSeller('${encodeURIComponent(name)}', ${Number(good || rows.length || 0)}, ${Number(payment || 0)})">Reset Seller Payment</button>`;
+        document.querySelector("#modalBackdrop .modal-card").classList.add("wide-modal");
+        openModal();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load seller history");
       }
     }
 
@@ -1599,8 +1977,17 @@
           return;
         }
 
+        const currentSeller = [...state.sellers.sheet1, ...state.sellers.other].find(item => cleanKey(item.name) === cleanKey(name));
+        state.resetBaselines.sellers[cleanKey(name)] = {
+          good: Number(currentSeller?.rawGood ?? good ?? 0),
+          payment: Number(payment || 0),
+          time: new Date().toISOString()
+        };
+        saveResetBaselinesToLocal();
+        logActivity("Seller reset", name);
         alert("Seller reset done");
         closeModal();
+        await refreshData();
       } catch (err) {
         console.error(err);
         alert("Reset failed");
@@ -1617,6 +2004,7 @@
           return;
         }
 
+        logActivity("Export", exportType);
         downloadExcel(data.fileName || "export", data.rows || []);
       } catch (err) {
         console.error(err);
@@ -1640,6 +2028,7 @@
           return;
         }
 
+        logActivity("Seller export", `${seller}: ${exportType}`);
         downloadExcel(data.fileName || "export", data.rows || []);
       } catch (err) {
         console.error(err);
@@ -1674,15 +2063,34 @@
       const rateSection = document.getElementById("rateSection");
       const sellerPaymentRow = document.getElementById("sellerPaymentRow");
       const historySection = document.getElementById("historySection");
+      const sellerSection = document.getElementById("sellerSection");
+      const exportSection = document.getElementById("exportSection");
+      const activityNavBtn = document.getElementById("activityNavBtn");
+      const topSellersColumn = document.getElementById("topSellersColumn");
+      const adminOnlyButtons = document.querySelectorAll("[data-admin-only='true']");
 
       if (state.role === "member") {
         rateSection.classList.add("hidden");
+        sellerSection.classList.add("hidden");
+        exportSection.classList.add("hidden");
         sellerPaymentRow.style.display = "none";
         historySection.classList.remove("hidden");
+        const resetPaymentBtn = document.getElementById("resetPaymentBtn");
+        if (resetPaymentBtn) resetPaymentBtn.classList.add("hidden");
+        activityNavBtn.classList.add("hidden");
+        topSellersColumn.classList.add("hidden");
+        adminOnlyButtons.forEach(btn => btn.classList.add("hidden"));
       } else {
         rateSection.classList.remove("hidden");
+        sellerSection.classList.remove("hidden");
+        exportSection.classList.remove("hidden");
         sellerPaymentRow.style.display = "flex";
         historySection.classList.add("hidden");
+        const resetPaymentBtn = document.getElementById("resetPaymentBtn");
+        if (resetPaymentBtn) resetPaymentBtn.classList.remove("hidden");
+        activityNavBtn.classList.toggle("hidden", state.role !== "super");
+        topSellersColumn.classList.remove("hidden");
+        adminOnlyButtons.forEach(btn => btn.classList.remove("hidden"));
       }
     }
 
@@ -1714,7 +2122,7 @@
         renderMembers([found]);
 
         const memberRecent = state.recent.filter(r => String(r.member || "").toLowerCase() === memberName.toLowerCase());
-        renderRecent(memberRecent);
+        renderRecent(memberRecent, true);
 
         const memberProblemBreakdown = aggregateProblemFromRows(memberRecent);
         renderProblemBreakdown(memberProblemBreakdown);
@@ -1735,6 +2143,39 @@
       renderMembers(state.members);
       renderProblemBreakdown(state.problemBreakdown);
       renderRecent(state.recent);
+    }
+
+    function showSection(id) {
+      const target = document.getElementById(id);
+      if (!target || target.classList.contains("hidden")) return;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      logActivity("Navigation", id);
+    }
+
+    function showActivityPanel() {
+      if (state.role !== "super") return;
+      document.getElementById("modalTitle").textContent = "Activity Log";
+      document.getElementById("modalBody").innerHTML = state.activity.length
+        ? `<div class="activity-list">${state.activity.map(item => `
+            <div class="item">
+              <div>
+                <div class="item-name">${escapeHtml(item.action || "Activity")}</div>
+                <div class="item-sub">${escapeHtml(item.user || "-")} | ${escapeHtml(item.role || "-")} | ${formatDateTime(item.time)}</div>
+                <div class="item-sub">${escapeHtml(item.details || "-")}</div>
+              </div>
+            </div>
+          `).join("")}</div>`
+        : `<div class="item"><div><div class="item-name">No activity yet</div><div class="item-sub">Activity will appear after users take actions in this browser.</div></div></div>`;
+      document.getElementById("modalActions").innerHTML = `<button class="btn red" onclick="clearActivityLog()">Clear Activity</button>`;
+      document.querySelector("#modalBackdrop .modal-card").classList.add("wide-modal");
+      openModal();
+    }
+
+    function clearActivityLog() {
+      if (state.role !== "super") return;
+      state.activity = [];
+      saveActivityToLocal();
+      showActivityPanel();
     }
 
     function aggregateProblemFromRows(rows) {
@@ -1761,7 +2202,10 @@
         }
 
         loadRatesFromLocal();
+        loadResetBaselinesFromLocal();
         mapApiToState(data);
+        state.lastUpdate = new Date();
+        document.getElementById("lastUpdateTime").textContent = `Last update: ${formatDateTime(state.lastUpdate)}`;
 
         if (state.role) {
           renderDashboardByRole();
@@ -1776,12 +2220,14 @@
     function showDashboard() {
       document.getElementById("loginPage").classList.add("hidden");
       document.getElementById("dashboardPage").classList.remove("hidden");
+      logActivity("Login", state.memberName || state.role || "unknown");
       renderDashboardByRole();
     }
 
     function logout() {
       state.role = null;
       state.memberName = null;
+      logActivity("Logout", state.memberName || state.role || "unknown");
       document.getElementById("dashboardPage").classList.add("hidden");
       document.getElementById("loginPage").classList.remove("hidden");
       document.getElementById("loginPassword").value = "";
@@ -1894,6 +2340,8 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
     bindLogin();
     startCodeBackground();
     loadRatesFromLocal();
+    loadResetBaselinesFromLocal();
+    loadActivityFromLocal();
     refreshData();
   </script>
 </body>
