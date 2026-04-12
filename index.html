@@ -1569,16 +1569,15 @@
   <script>
     const API_BASE = "https://script.google.com/macros/s/AKfycbzqkF6KgBmoBU37dtBdkvVCOyrp9frRGX5oYxJQ6-mALXWwv8RitgKZ-cw0VP5wqF4w/exec";
     const API_URL = API_BASE + "?action=dashboard";
-    const ADMIN_PASSWORD = "admin@555";
-    const SUPER_ADMIN_PASSWORD = "super@2024";
     const SESSION_KEY = "gmailTeamPro_session";
-    const SESSION_TTL_MS = 5 * 60 * 1000;
+    const SESSION_TTL_MS = 30 * 60 * 1000;
 
     const state = {
       rawData: null,
       lastUpdate: null,
       role: null,
       memberName: null,
+      token: null,
       stats: {
         total: 0,
         good: 0,
@@ -1639,6 +1638,20 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    }
+
+    function apiUrl(action, params = {}) {
+      const query = new URLSearchParams({ action, ...params });
+      if (state.token) query.set("token", state.token);
+      return `${API_BASE}?${query.toString()}`;
+    }
+
+    function apiForm(action, params = {}) {
+      const form = new URLSearchParams();
+      form.append("action", action);
+      if (state.token) form.append("token", state.token);
+      Object.entries(params).forEach(([key, value]) => form.append(key, value));
+      return form;
     }
 
     function getClickedButton() {
@@ -1772,8 +1785,9 @@
     }
 
     function saveLoginSession() {
-      if (!state.role) return;
+      if (!state.role || !state.token) return;
       localStorage.setItem(SESSION_KEY, JSON.stringify({
+        token: state.token,
         role: state.role,
         memberName: state.memberName || "",
         expiresAt: Date.now() + SESSION_TTL_MS
@@ -1782,12 +1796,13 @@
 
     function clearLoginSession() {
       localStorage.removeItem(SESSION_KEY);
+      state.token = null;
     }
 
     function getSavedLoginSession() {
       try {
         const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
-        if (!saved || !saved.role || Number(saved.expiresAt || 0) < Date.now()) {
+        if (!saved || !saved.token || !saved.role || Number(saved.expiresAt || 0) < Date.now()) {
           clearLoginSession();
           return null;
         }
@@ -1798,27 +1813,25 @@
       }
     }
 
-    function restoreLoginSession() {
+    async function restoreLoginSession() {
       const saved = getSavedLoginSession();
       if (!saved) return false;
-      if (saved.role === "member") {
-        const matchedMember = state.memberNames.find(name => String(name).trim().toLowerCase() === String(saved.memberName || "").trim().toLowerCase());
-        if (!matchedMember) {
+      try {
+        const res = await fetch(`${API_BASE}?action=validate&token=${encodeURIComponent(saved.token)}`);
+        const data = await res.json();
+        if (!data.success) {
           clearLoginSession();
           return false;
         }
-        state.role = "member";
-        state.memberName = matchedMember;
-      } else if (saved.role === "admin" || saved.role === "super") {
-        state.role = saved.role;
-        state.memberName = null;
-      } else {
+        state.token = data.token || saved.token;
+        state.role = data.role || saved.role;
+        state.memberName = data.memberName || "";
+        saveLoginSession();
+        return true;
+      } catch (err) {
         clearLoginSession();
         return false;
       }
-      saveLoginSession();
-      showDashboard("Session restore");
-      return true;
     }
 
     function loadRatesFromLocal() {
@@ -2220,7 +2233,7 @@
       try {
         if (state.role === "member" && type === "seller") return;
         logActivity("History view", `${type}: ${name}`);
-        const res = await fetch(`${API_BASE}?action=getHistory&type=${encodeURIComponent(type)}&name=${encodeURIComponent(name)}`);
+        const res = await fetch(apiUrl("getHistory", { type, name }));
         const data = await res.json();
 
         document.getElementById("modalTitle").textContent = `${name} History`;
@@ -2264,7 +2277,7 @@
 
     async function loadMemberOwnHistory(memberName) {
       try {
-        const res = await fetch(`${API_BASE}?action=getHistory&type=member&name=${encodeURIComponent(memberName)}`);
+        const res = await fetch(apiUrl("getHistory", { type: "member", name: memberName }));
         const data = await res.json();
 
         state.history.totalGood = Number(data.totalGood || 0);
@@ -2302,11 +2315,11 @@
       const stopLoading = startLoading(`reset-member:${state.memberName}`, "Resetting...");
       if (!stopLoading) return;
       try {
-        const form = new URLSearchParams();
-        form.append("action", "resetMember");
-        form.append("name", state.memberName);
-        form.append("good", currentGood);
-        form.append("payment", currentPayment);
+        const form = apiForm("resetMember", {
+          name: state.memberName,
+          good: currentGood,
+          payment: currentPayment
+        });
 
         const res = await fetch(API_BASE, { method: "POST", body: form });
         const data = await res.json();
@@ -2342,11 +2355,11 @@
       const stopLoading = startLoading(`reset-member:${name}`, "Resetting...");
       if (!stopLoading) return;
       try {
-        const form = new URLSearchParams();
-        form.append("action", "resetMember");
-        form.append("name", name);
-        form.append("good", Number(good || 0));
-        form.append("payment", Number(payment || 0));
+        const form = apiForm("resetMember", {
+          name,
+          good: Number(good || 0),
+          payment: Number(payment || 0)
+        });
 
         const res = await fetch(API_BASE, { method: "POST", body: form });
         const data = await res.json();
@@ -2384,8 +2397,8 @@
       try {
         logActivity("Seller good history", name);
         const [historyRes, exportRes] = await Promise.all([
-          fetch(`${API_BASE}?action=getHistory&type=seller&name=${encodeURIComponent(name)}`),
-          fetch(`${API_BASE}?action=export&exportType=sellerGood&seller=${encodeURIComponent(name)}`)
+          fetch(apiUrl("getHistory", { type: "seller", name })),
+          fetch(apiUrl("export", { exportType: "sellerGood", seller: name }))
         ]);
         const historyData = await historyRes.json();
         const exportData = await exportRes.json();
@@ -2434,11 +2447,11 @@
       const stopLoading = startLoading(`reset-seller:${name}`, "Resetting...");
       if (!stopLoading) return;
       try {
-        const form = new URLSearchParams();
-        form.append("action", "resetSeller");
-        form.append("name", name);
-        form.append("good", Number(good || 0));
-        form.append("payment", Number(payment || 0));
+        const form = apiForm("resetSeller", {
+          name,
+          good: Number(good || 0),
+          payment: Number(payment || 0)
+        });
 
         const res = await fetch(API_BASE, { method: "POST", body: form });
         const data = await res.json();
@@ -2471,7 +2484,7 @@
       const stopLoading = startLoading(`export:${exportType}`, "Exporting...");
       if (!stopLoading) return;
       try {
-        const res = await fetch(`${API_BASE}?action=export&exportType=${encodeURIComponent(exportType)}`);
+        const res = await fetch(apiUrl("export", { exportType }));
         const data = await res.json();
 
         if (!data.success) {
@@ -2499,7 +2512,7 @@
       const stopLoading = startLoading(`export-seller:${exportType}:${seller}`, "Exporting...");
       if (!stopLoading) return;
       try {
-        const res = await fetch(`${API_BASE}?action=export&exportType=${encodeURIComponent(exportType)}&seller=${encodeURIComponent(seller)}`);
+        const res = await fetch(apiUrl("export", { exportType, seller }));
         const data = await res.json();
 
         if (!data.success) {
@@ -2675,7 +2688,7 @@
       const stopLoading = startLoading("activity", "Loading...");
       if (!stopLoading) return;
       try {
-        const res = await fetch(`${API_BASE}?action=getActivity`);
+        const res = await fetch(apiUrl("getActivity"));
         const data = await res.json();
         const websiteActivity = state.activity.filter(item => item.role === "admin" || item.role === "member");
         const adminActivity = websiteActivity.filter(item => item.role === "admin");
@@ -2759,10 +2772,21 @@
       const stopLoading = startLoading("refresh", "Refreshing...");
       if (!stopLoading) return;
       try {
-        const res = await fetch(API_URL);
+        if (!state.token) {
+          const restored = await restoreLoginSession();
+          if (!restored) return;
+        }
+
+        const res = await fetch(apiUrl("dashboard"));
         const data = await res.json();
 
         if (!data.success) {
+          if (String(data.error || "").toLowerCase() === "unauthorized") {
+            clearLoginSession();
+            document.getElementById("dashboardPage").classList.add("hidden");
+            document.getElementById("loginPage").classList.remove("hidden");
+            return;
+          }
           const msg = document.getElementById("loginMessage");
           if (msg) msg.textContent = data.error || "Failed to load data";
           alert(data.error || "Failed to load data");
@@ -2775,12 +2799,8 @@
         state.lastUpdate = new Date();
         document.getElementById("lastUpdateTime").textContent = `Last update: ${formatDateTime(state.lastUpdate)}`;
 
-        if (!state.role) {
-          restoreLoginSession();
-        } else {
-          saveLoginSession();
-          renderDashboardByRole();
-        }
+        saveLoginSession();
+        renderDashboardByRole();
       } catch (err) {
         console.error(err);
         const msg = document.getElementById("loginMessage");
@@ -2798,9 +2818,16 @@
       renderDashboardByRole();
     }
 
-    function logout() {
+    async function logout() {
       const previousUser = state.memberName || state.role || "unknown";
       logActivity("Logout", previousUser);
+      if (state.token) {
+        try {
+          await fetch(API_BASE, { method: "POST", body: apiForm("logout") });
+        } catch (err) {
+          console.warn("Logout token clear failed", err);
+        }
+      }
       clearLoginSession();
       state.role = null;
       state.memberName = null;
@@ -2825,43 +2852,41 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
       alert("Summary copied");
     }
 
-    function handleLogin() {
+    async function handleLogin() {
       const input = document.getElementById("loginPassword");
       const raw = String(input.value || "").trim();
-      const password = raw.toLowerCase();
 
       if (!raw) {
         alert("Password দে");
         return;
       }
 
-      if (raw === SUPER_ADMIN_PASSWORD) {
-        state.role = "super";
-        state.memberName = null;
+      const stopLoading = startLoading("login", "Logging in...");
+      if (!stopLoading) return;
+      try {
+        const form = new URLSearchParams();
+        form.append("action", "login");
+        form.append("password", raw);
+        const res = await fetch(API_BASE, { method: "POST", body: form });
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.error || "Wrong password");
+          return;
+        }
+
+        state.token = data.token;
+        state.role = data.role;
+        state.memberName = data.memberName || null;
         saveLoginSession();
+        await refreshData();
         showDashboard();
-        return;
+      } catch (err) {
+        console.error(err);
+        alert("Login failed");
+      } finally {
+        stopLoading();
       }
-
-      if (raw === ADMIN_PASSWORD) {
-        state.role = "admin";
-        state.memberName = null;
-        saveLoginSession();
-        showDashboard();
-        return;
-      }
-
-      const matchedMember = state.memberNames.find(name => String(name).trim().toLowerCase() === password);
-
-      if (matchedMember) {
-        state.role = "member";
-        state.memberName = matchedMember;
-        saveLoginSession();
-        showDashboard();
-        return;
-      }
-
-      alert("Wrong password");
     }
 
     function bindLogin() {
