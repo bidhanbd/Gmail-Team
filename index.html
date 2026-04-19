@@ -560,6 +560,10 @@
       padding:22px;
     }
 
+    [data-panel]{
+      scroll-margin-top:140px;
+    }
+
     .section-head{
       display:flex;
       justify-content:space-between;
@@ -1204,7 +1208,66 @@
       .payment-layout{grid-template-columns:1fr}
     }
 
+    @media (max-width: 1100px), (max-height: 920px){
+      [data-panel]{
+        scroll-margin-top:172px;
+      }
+      .topbar{
+        top:8px;
+        gap:10px;
+        padding:12px 14px;
+        border-radius:20px;
+      }
+      .brand{
+        gap:10px;
+        min-width:0;
+      }
+      .brand-badge{
+        width:46px;
+        height:46px;
+        border-radius:14px;
+        font-size:20px;
+      }
+      .gmail-logo::before,
+      .gmail-logo::after{
+        top:13px;
+        width:20px;
+        height:5px;
+      }
+      .gmail-logo::before{left:7px}
+      .gmail-logo::after{right:7px}
+      .brand h1{
+        font-size:clamp(18px, 2.2vw, 24px);
+        margin-bottom:2px;
+      }
+      .brand p{
+        font-size:12px;
+      }
+      .top-actions{
+        width:100%;
+        justify-content:flex-start;
+        gap:8px;
+      }
+      .top-actions .btn{
+        padding:10px 13px;
+        border-radius:14px;
+        font-size:13px;
+      }
+      .top-meta{
+        padding:8px 10px;
+        font-size:11px;
+      }
+      .nav-icon{
+        width:15px;
+        margin-right:5px;
+        font-size:12px;
+      }
+    }
+
     @media (max-width: 760px){
+      [data-panel]{
+        scroll-margin-top:210px;
+      }
       .app{
         width:min(100% - 14px, 1440px);
         margin:14px auto 24px;
@@ -2677,8 +2740,11 @@
       };
       const panel = panelMap[id] || id;
       setActivePanel(panel);
-      const dashboard = document.getElementById("dashboardPage");
-      if (dashboard) dashboard.scrollIntoView({ behavior: "smooth", block: "start" });
+      const scrollTarget =
+        document.querySelector(`[data-panel="${panel}"]:not(.hidden)`) ||
+        document.getElementById(id) ||
+        document.getElementById("dashboardPage");
+      if (scrollTarget) scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
       logActivity("Navigation", panel);
     }
 
