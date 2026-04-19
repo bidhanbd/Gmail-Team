@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -2810,6 +2810,17 @@
       }
     }
 
+    function startAutoSync() {
+      window.setInterval(() => {
+        const modalOpen = document.getElementById("modalBackdrop")?.classList.contains("show");
+        if (!state.role || !state.token) return;
+        if (document.visibilityState !== "visible") return;
+        if (busyActions.size) return;
+        if (modalOpen) return;
+        refreshData();
+      }, 30000);
+    }
+
     function showDashboard(activityLabel = "Login") {
       document.getElementById("loginPage").classList.add("hidden");
       document.getElementById("dashboardPage").classList.remove("hidden");
@@ -2946,6 +2957,7 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
     loadRatesFromLocal();
     loadResetBaselinesFromLocal();
     loadActivityFromLocal();
+    startAutoSync();
     refreshData();
   </script>
 </body>
