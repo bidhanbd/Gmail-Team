@@ -244,65 +244,173 @@
 
     .global-loader{
       position:fixed;
-      top:18px;
-      right:18px;
+      inset:0;
       z-index:9999;
-      display:flex;
-      align-items:center;
-      gap:11px;
-      padding:11px 14px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,.18);
-      background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
-      color:var(--text);
-      -webkit-backdrop-filter:blur(18px);
-      backdrop-filter:blur(18px);
-      box-shadow:0 18px 44px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.14);
+      display:grid;
+      place-items:center;
+      padding:20px;
+      background:rgba(3,8,18,.28);
+      -webkit-backdrop-filter:blur(8px);
+      backdrop-filter:blur(8px);
       opacity:0;
-      transform:translateY(-8px);
+      visibility:hidden;
       pointer-events:none;
-      transition:.2s ease;
+      transition:.22s ease;
+    }
+
+    .global-loader-card{
+      display:grid;
+      justify-items:center;
+      gap:14px;
+      min-width:min(92vw, 320px);
+      padding:20px 22px 18px;
+      border-radius:22px;
+      border:1px solid rgba(69,243,255,.22);
+      background:
+        linear-gradient(135deg, rgba(6,14,24,.96), rgba(5,11,21,.92)),
+        linear-gradient(180deg, rgba(69,243,255,.04), rgba(69,243,255,0));
+      color:var(--text);
+      -webkit-backdrop-filter:blur(22px);
+      backdrop-filter:blur(22px);
+      box-shadow:
+        0 22px 60px rgba(0,0,0,.44),
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 0 32px rgba(69,243,255,.12);
+      transform:translateY(10px) scale(.98);
+      transition:.22s ease;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .global-loader-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(69,243,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(69,243,255,.05) 1px, transparent 1px);
+      background-size:18px 18px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.34), rgba(0,0,0,0));
+      opacity:.55;
+      pointer-events:none;
     }
 
     .global-loader.show{
       opacity:1;
-      transform:translateY(0);
+      visibility:visible;
+      pointer-events:auto;
+    }
+
+    .global-loader.show .global-loader-card{
+      transform:translateY(0) scale(1);
+    }
+
+    .loader-visual{
+      position:relative;
+      width:74px;
+      height:74px;
+      display:grid;
+      place-items:center;
+    }
+
+    .loader-ring{
+      position:absolute;
+      inset:0;
+      border-radius:50%;
+      border:1px solid rgba(69,243,255,.14);
+      box-shadow:inset 0 0 0 1px rgba(69,243,255,.03), 0 0 16px rgba(69,243,255,.06);
+    }
+
+    .loader-ring.outer{
+      border-top-color:rgba(69,243,255,.92);
+      border-right-color:rgba(69,243,255,.46);
+      border-bottom-color:rgba(69,243,255,.08);
+      border-left-color:rgba(69,243,255,.12);
+      animation:loaderSpin 1.05s linear infinite;
+    }
+
+    .loader-ring.middle{
+      inset:9px;
+      border-top-color:rgba(69,243,255,.18);
+      border-right-color:rgba(69,243,255,.82);
+      border-bottom-color:rgba(69,243,255,.12);
+      border-left-color:rgba(69,243,255,.08);
+      animation:loaderSpinReverse 1.4s linear infinite;
     }
 
     .loader-dot{
+      position:relative;
       width:22px;
       height:22px;
-      border-radius:50%;
-      border:2px solid rgba(255,255,255,.16);
-      border-top-color:#47a7ff;
-      border-right-color:#2ee887;
-      position:relative;
-      animation:loaderSpin .75s linear infinite;
+      border-radius:8px;
+      background:linear-gradient(135deg, rgba(69,243,255,.88), rgba(18,144,170,.78));
+      box-shadow:0 0 22px rgba(69,243,255,.26);
+      transform:rotate(45deg);
+      animation:loaderCorePulse 1.1s ease-in-out infinite;
     }
 
     .loader-dot::after{
       content:"";
       position:absolute;
-      inset:4px;
+      inset:5px;
       border-radius:50%;
-      background:linear-gradient(135deg, rgba(71,167,255,.9), rgba(46,232,135,.85));
-      box-shadow:0 0 18px rgba(71,167,255,.42);
-      animation:loaderPulse .9s ease-in-out infinite;
+      background:linear-gradient(135deg, rgba(223,255,255,.96), rgba(69,243,255,.88));
+      box-shadow:0 0 16px rgba(69,243,255,.40);
     }
 
-    .global-loader span{
-      font-size:12px;
+    .loader-scan{
+      position:absolute;
+      left:8px;
+      right:8px;
+      top:50%;
+      height:1px;
+      background:linear-gradient(90deg, rgba(69,243,255,0), rgba(69,243,255,.94), rgba(69,243,255,0));
+      box-shadow:0 0 16px rgba(69,243,255,.24);
+      animation:loaderScan 1.9s linear infinite;
+      opacity:.82;
+    }
+
+    .global-loader-copy{
+      position:relative;
+      z-index:1;
+      text-align:center;
+    }
+
+    .global-loader strong{
+      display:block;
+      font-size:16px;
       font-weight:900;
-      letter-spacing:.2px;
+      margin-bottom:4px;
+      letter-spacing:.3px;
+      text-shadow:0 0 14px rgba(69,243,255,.12);
+    }
+
+    .global-loader small{
+      display:block;
+      color:#bcd9e2;
+      font-size:12px;
+      line-height:1.45;
     }
 
     @keyframes loaderSpin{
       to{transform:rotate(360deg)}
     }
 
-    @keyframes loaderPulse{
-      0%,100%{transform:scale(.72);opacity:.55}
-      50%{transform:scale(1);opacity:1}
+    @keyframes loaderSpinReverse{
+      to{transform:rotate(-360deg)}
+    }
+
+    @keyframes loaderCorePulse{
+      0%,100%{transform:rotate(45deg) scale(.88);opacity:.78}
+      50%{transform:rotate(45deg) scale(1);opacity:1}
+    }
+
+    @keyframes loaderScan{
+      0%{transform:translateY(-18px);opacity:0}
+      20%{opacity:.92}
+      50%{transform:translateY(18px);opacity:.38}
+      55%{opacity:0}
+      100%{transform:translateY(-18px);opacity:0}
     }
 
     .btn.primary{
@@ -613,6 +721,269 @@
       margin-bottom:22px;
     }
 
+    .login-entry-actions{
+      display:flex;
+      justify-content:center;
+    }
+
+    .login-trigger-btn{
+      position:relative;
+      min-width:min(100%, 168px);
+      min-height:40px;
+      padding:10px 18px;
+      border-radius:18px;
+      border:1px solid rgba(69,243,255,.34);
+      background:
+        linear-gradient(135deg, rgba(69,243,255,.20), rgba(10,124,150,.18)),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0));
+      color:#eefcff;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.28px;
+      box-shadow:
+        0 20px 40px rgba(0,0,0,.32),
+        0 0 26px rgba(69,243,255,.12),
+        inset 0 1px 0 rgba(255,255,255,.14);
+      overflow:hidden;
+    }
+
+    .login-trigger-btn::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(69,243,255,.12), rgba(69,243,255,0) 24%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0) 40%);
+      pointer-events:none;
+    }
+
+    .login-trigger-btn::after{
+      content:"";
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:-18%;
+      width:18%;
+      background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.24), rgba(255,255,255,0));
+      transform:skewX(-20deg);
+      animation:loginTriggerSweep 3.6s ease-in-out infinite;
+      pointer-events:none;
+    }
+
+    .login-trigger-btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(69,243,255,.48);
+      box-shadow:
+        0 24px 46px rgba(0,0,0,.36),
+        0 0 34px rgba(69,243,255,.16),
+        inset 0 1px 0 rgba(255,255,255,.18);
+    }
+
+    .login-prompt-backdrop{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(2,7,15,.70);
+      -webkit-backdrop-filter:blur(10px);
+      backdrop-filter:blur(10px);
+      z-index:120;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .24s ease, visibility .24s ease;
+    }
+
+    .login-prompt-backdrop.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+
+    .login-prompt-backdrop.is-closing{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    .login-prompt-card{
+      width:min(520px, 100%);
+      transform:translateY(20px) scale(.96);
+      opacity:0;
+      transition:transform .26s cubic-bezier(.2,.9,.2,1), opacity .24s ease;
+      position:relative;
+    }
+
+    .login-prompt-backdrop.show .login-prompt-card{
+      transform:translateY(0) scale(1);
+      opacity:1;
+    }
+
+    .login-prompt-backdrop.is-closing .login-prompt-card{
+      transform:translateY(14px) scale(.98);
+      opacity:0;
+    }
+
+    .login-prompt-flash{
+      position:absolute;
+      inset:-18px;
+      border-radius:34px;
+      border:1px solid rgba(69,243,255,.34);
+      box-shadow:0 0 0 0 rgba(69,243,255,.22), 0 0 48px rgba(69,243,255,.10);
+      opacity:0;
+      transform:scale(.94);
+      pointer-events:none;
+    }
+
+    .login-prompt-backdrop.show .login-prompt-flash{
+      animation:loginPromptFlash .68s ease-out both;
+    }
+
+    .login-prompt-card .login-right{
+      min-height:auto;
+    }
+
+    .confirm-backdrop{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(2,7,15,.76);
+      -webkit-backdrop-filter:blur(10px);
+      backdrop-filter:blur(10px);
+      z-index:130;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .22s ease, visibility .22s ease;
+    }
+
+    .confirm-backdrop.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+
+    .confirm-card{
+      width:min(440px, 100%);
+      padding:24px 22px 20px;
+      position:relative;
+      border-radius:24px;
+      border:1px solid rgba(69,243,255,.18);
+      background:
+        linear-gradient(180deg, rgba(4,10,20,.96), rgba(5,12,23,.92)),
+        linear-gradient(135deg, rgba(69,243,255,.06), rgba(69,243,255,.02));
+      box-shadow:
+        0 30px 70px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 0 28px rgba(69,243,255,.08);
+      transform:translateY(16px) scale(.97);
+      transition:transform .24s cubic-bezier(.2,.9,.2,1), opacity .22s ease;
+      opacity:0;
+      overflow:hidden;
+    }
+
+    .confirm-backdrop.show .confirm-card{
+      transform:translateY(0) scale(1);
+      opacity:1;
+    }
+
+    .confirm-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(69,243,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(69,243,255,.05) 1px, transparent 1px);
+      background-size:18px 18px;
+      mask-image:linear-gradient(180deg, rgba(0,0,0,.34), rgba(0,0,0,0));
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    .confirm-card::after{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:2px;
+      background:linear-gradient(90deg, rgba(69,243,255,0), rgba(69,243,255,.94), rgba(69,243,255,.78), rgba(69,243,255,0));
+      box-shadow:0 0 18px rgba(69,243,255,.24);
+      pointer-events:none;
+    }
+
+    .confirm-icon{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      margin:0 auto 16px;
+      font-size:24px;
+      color:#effcff;
+      background:linear-gradient(135deg, rgba(69,243,255,.18), rgba(10,124,150,.14));
+      border:1px solid rgba(69,243,255,.24);
+      box-shadow:0 0 24px rgba(69,243,255,.10), inset 0 1px 0 rgba(255,255,255,.08);
+      position:relative;
+      z-index:1;
+    }
+
+    .confirm-title{
+      position:relative;
+      z-index:1;
+      text-align:center;
+      font-size:24px;
+      font-weight:900;
+      margin-bottom:10px;
+      color:#f3fbff;
+      text-shadow:0 0 16px rgba(69,243,255,.12);
+    }
+
+    .confirm-text{
+      position:relative;
+      z-index:1;
+      text-align:center;
+      color:#bfd0ec;
+      font-size:14px;
+      line-height:1.7;
+      margin-bottom:18px;
+    }
+
+    .confirm-actions{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .confirm-btn{
+      min-height:46px;
+      border-radius:16px;
+      font-size:19px;
+      font-weight:800;
+      display:grid;
+      place-items:center;
+      line-height:1;
+    }
+
+    .confirm-btn.confirm-yes{
+      background:
+        linear-gradient(135deg, rgba(69,243,255,.30), rgba(12,151,180,.18)),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0));
+      border-color:rgba(69,243,255,.32);
+      box-shadow:0 16px 30px rgba(69,243,255,.08), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    .confirm-btn.confirm-no{
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border-color:rgba(255,255,255,.14);
+    }
+
     .login-brand-badge{
       width:62px;
       height:62px;
@@ -916,6 +1287,18 @@
     @keyframes loginBadgePulse{
       0%, 100%{transform:translateY(0); box-shadow:0 0 0 rgba(69,243,255,0)}
       50%{transform:translateY(-2px); box-shadow:0 0 18px rgba(69,243,255,.10)}
+    }
+
+    @keyframes loginTriggerSweep{
+      0%, 62%{transform:translateX(0) skewX(-20deg); opacity:0}
+      72%{opacity:.62}
+      100%{transform:translateX(620%) skewX(-20deg); opacity:0}
+    }
+
+    @keyframes loginPromptFlash{
+      0%{opacity:0; transform:scale(.94)}
+      28%{opacity:.92; transform:scale(1.01)}
+      100%{opacity:0; transform:scale(1.06)}
     }
 
     @keyframes loginInputSweep{
@@ -1853,6 +2236,13 @@
       .login-right-inner{
         width:100%;
       }
+      .login-trigger-btn{
+        min-height:42px;
+        border-radius:16px;
+        font-size:12px;
+        min-width:min(100%, 156px);
+        padding:9px 16px;
+      }
       .login-brand-badge{
         width:54px;
         height:54px;
@@ -1883,6 +2273,9 @@
         gap:12px;
         padding:16px;
         border-radius:20px;
+      }
+      .login-prompt-backdrop{
+        padding:14px;
       }
       .login-form .field-corner{
         width:12px;
@@ -1969,11 +2362,6 @@
     <section id="loginPage" class="page login-wrap">
       <div class="login-shell">
         <div class="glass animated-card login-right fire-ring clickable-card">
-          <span class="corner tl" aria-hidden="true"></span>
-          <span class="corner tr" aria-hidden="true"></span>
-          <span class="corner bl" aria-hidden="true"></span>
-          <span class="corner br" aria-hidden="true"></span>
-          <span class="login-scan-line" aria-hidden="true"></span>
           <div class="login-right-inner">
             <div class="login-brand-stack">
               <div class="login-brand-badge gmail-logo">M</div>
@@ -1981,20 +2369,9 @@
               <div class="login-brand-title">Gmail Team Pro</div>
             </div>
 
-            <div class="login-form">
-              <span class="field-corner tl" aria-hidden="true"></span>
-              <span class="field-corner tr" aria-hidden="true"></span>
-              <span class="field-corner bl" aria-hidden="true"></span>
-              <span class="field-corner br" aria-hidden="true"></span>
-              <div class="login-label">Access Password</div>
-              <div class="login-input-wrap">
-                <input id="loginPassword" class="input" type="password" placeholder="Enter password">
-              </div>
-              <button class="btn primary login-btn" id="loginBtn">Login</button>
-              <div class="small-note">Enter your access password</div>
+            <div class="login-entry-actions">
+              <button class="btn login-trigger-btn" id="openLoginPromptBtn" type="button">Login</button>
             </div>
-
-            <div id="loginMessage" class="notice">Loading members...</div>
           </div>
         </div>
       </div>
@@ -2299,6 +2676,48 @@
     </section>
   </div>
 
+  <div id="loginPromptBackdrop" class="login-prompt-backdrop">
+    <div class="login-prompt-card">
+      <span class="login-prompt-flash" aria-hidden="true"></span>
+      <div class="glass animated-card login-right fire-ring clickable-card">
+        <span class="corner tl" aria-hidden="true"></span>
+        <span class="corner tr" aria-hidden="true"></span>
+        <span class="corner bl" aria-hidden="true"></span>
+        <span class="corner br" aria-hidden="true"></span>
+        <span class="login-scan-line" aria-hidden="true"></span>
+        <button class="modal-close-x" onclick="closeLoginPrompt()" aria-label="Close">×</button>
+        <div class="login-right-inner">
+          <div class="login-form">
+            <span class="field-corner tl" aria-hidden="true"></span>
+            <span class="field-corner tr" aria-hidden="true"></span>
+            <span class="field-corner bl" aria-hidden="true"></span>
+            <span class="field-corner br" aria-hidden="true"></span>
+            <div class="login-label">Access Password</div>
+            <div class="login-input-wrap">
+              <input id="loginPassword" class="input" type="password" placeholder="Enter password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+            </div>
+            <button class="btn primary login-btn" id="loginBtn">Login</button>
+            <div class="small-note">Enter your access password</div>
+          </div>
+
+          <div id="loginMessage" class="notice">Loading members...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmBackdrop" class="confirm-backdrop">
+    <div class="confirm-card">
+      <div class="confirm-icon" id="confirmIcon">⏻</div>
+      <div class="confirm-title" id="confirmTitle">Logout</div>
+      <div class="confirm-text" id="confirmText">তুমি কি logout করতে চাও?</div>
+      <div class="confirm-actions">
+        <button class="btn confirm-btn confirm-no" id="confirmCancelBtn" type="button" aria-label="Cancel" title="Cancel">×</button>
+        <button class="btn confirm-btn confirm-yes" id="confirmOkBtn" type="button" aria-label="Confirm" title="Confirm">⏻</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modalBackdrop" class="modal-backdrop">
     <div class="glass modal-card">
       <button class="modal-close-x" onclick="closeModal()" aria-label="Close">×</button>
@@ -2311,8 +2730,18 @@
     </div>
   </div>
   <div id="globalLoader" class="global-loader">
-    <div class="loader-dot"></div>
-    <span id="globalLoaderText">Loading...</span>
+    <div class="global-loader-card">
+      <div class="loader-visual" aria-hidden="true">
+        <div class="loader-ring outer"></div>
+        <div class="loader-ring middle"></div>
+        <div class="loader-scan"></div>
+        <div class="loader-dot"></div>
+      </div>
+      <div class="global-loader-copy">
+        <strong>Please Wait !</strong>
+        <small id="globalLoaderText">Loading...</small>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -2581,6 +3010,99 @@
         clearLoginSession();
         return false;
       }
+    }
+
+    function clearLoginPasswordField() {
+      const input = document.getElementById("loginPassword");
+      if (!input) return;
+      input.value = "";
+      input.setAttribute("value", "");
+    }
+
+    function openLoginPrompt() {
+      const backdrop = document.getElementById("loginPromptBackdrop");
+      if (!backdrop) return;
+      clearLoginPasswordField();
+      backdrop.classList.remove("is-closing");
+      backdrop.classList.add("show");
+      document.getElementById("loginMessage").textContent = "Loading members...";
+      window.setTimeout(() => {
+        document.getElementById("loginPassword")?.focus();
+      }, 30);
+    }
+
+    function closeLoginPrompt() {
+      const backdrop = document.getElementById("loginPromptBackdrop");
+      if (!backdrop) return;
+      backdrop.classList.remove("show");
+      backdrop.classList.add("is-closing");
+      window.setTimeout(() => {
+        backdrop.classList.remove("is-closing");
+        clearLoginPasswordField();
+      }, 220);
+    }
+
+    function showTechConfirm({
+      title = "Confirm",
+      text = "Are you sure?",
+      okText = "OK",
+      cancelText = "Cancel",
+      icon = "•",
+      okIcon = "✓",
+      cancelIcon = "×"
+    } = {}) {
+      return new Promise((resolve) => {
+        const backdrop = document.getElementById("confirmBackdrop");
+        const titleEl = document.getElementById("confirmTitle");
+        const textEl = document.getElementById("confirmText");
+        const iconEl = document.getElementById("confirmIcon");
+        const okBtn = document.getElementById("confirmOkBtn");
+        const cancelBtn = document.getElementById("confirmCancelBtn");
+
+        if (!backdrop || !titleEl || !textEl || !iconEl || !okBtn || !cancelBtn) {
+          resolve(window.confirm(text));
+          return;
+        }
+
+        titleEl.textContent = title;
+        textEl.textContent = text;
+        iconEl.textContent = icon;
+        okBtn.textContent = okIcon;
+        cancelBtn.textContent = cancelIcon;
+        okBtn.setAttribute("aria-label", okText);
+        okBtn.setAttribute("title", okText);
+        cancelBtn.setAttribute("aria-label", cancelText);
+        cancelBtn.setAttribute("title", cancelText);
+
+        let settled = false;
+        const cleanup = (value) => {
+          if (settled) return;
+          settled = true;
+          backdrop.classList.remove("show");
+          okBtn.removeEventListener("click", handleOk);
+          cancelBtn.removeEventListener("click", handleCancel);
+          backdrop.removeEventListener("click", handleBackdrop);
+          document.removeEventListener("keydown", handleKeydown);
+          resolve(value);
+        };
+
+        const handleOk = () => cleanup(true);
+        const handleCancel = () => cleanup(false);
+        const handleBackdrop = (e) => {
+          if (e.target.id === "confirmBackdrop") cleanup(false);
+        };
+        const handleKeydown = (e) => {
+          if (e.key === "Escape") cleanup(false);
+          if (e.key === "Enter") cleanup(true);
+        };
+
+        okBtn.addEventListener("click", handleOk);
+        cancelBtn.addEventListener("click", handleCancel);
+        backdrop.addEventListener("click", handleBackdrop);
+        document.addEventListener("keydown", handleKeydown);
+
+        backdrop.classList.add("show");
+      });
     }
 
     function loadRatesFromLocal() {
@@ -3058,7 +3580,15 @@
         return;
       }
 
-      const ok = confirm("Payment complete হলে reset হবে. Continue?");
+      const ok = await showTechConfirm({
+        title: "Reset Payment",
+        text: "Payment complete হলে reset হবে. Continue?",
+        okText: "Reset",
+        cancelText: "Cancel",
+        icon: "◈",
+        okIcon: "↺",
+        cancelIcon: "×"
+      });
       if (!ok) return;
 
       const stopLoading = startLoading(`reset-member:${state.memberName}`, "Resetting...");
@@ -3098,7 +3628,15 @@
 
     async function resetSpecificMember(encodedName, good, payment) {
       const name = decodeURIComponent(encodedName);
-      const ok = confirm("এই member reset করবে?");
+      const ok = await showTechConfirm({
+        title: "Reset Member",
+        text: "এই member reset করবে?",
+        okText: "Reset",
+        cancelText: "Cancel",
+        icon: "👤",
+        okIcon: "↺",
+        cancelIcon: "×"
+      });
       if (!ok) return;
 
       const stopLoading = startLoading(`reset-member:${name}`, "Resetting...");
@@ -3190,7 +3728,15 @@
 
     async function resetSpecificSeller(encodedName, good, payment) {
       const name = decodeURIComponent(encodedName);
-      const ok = confirm("এই seller reset করবে?");
+      const ok = await showTechConfirm({
+        title: "Reset Seller",
+        text: "এই seller reset করবে?",
+        okText: "Reset",
+        cancelText: "Cancel",
+        icon: "▣",
+        okIcon: "↺",
+        cancelIcon: "×"
+      });
       if (!ok) return;
 
       const stopLoading = startLoading(`reset-seller:${name}`, "Resetting...");
@@ -3578,6 +4124,7 @@
     }
 
     function showDashboard(activityLabel = "Login") {
+      closeLoginPrompt();
       document.getElementById("loginPage").classList.add("hidden");
       document.getElementById("dashboardPage").classList.remove("hidden");
       saveLoginSession();
@@ -3586,6 +4133,17 @@
     }
 
     async function logout() {
+      const ok = await showTechConfirm({
+        title: "Logout",
+        text: "তুমি কি সত্যি logout করতে চাও?",
+        okText: "Logout",
+        cancelText: "Stay",
+        icon: "⏻",
+        okIcon: "⏻",
+        cancelIcon: "×"
+      });
+      if (!ok) return;
+
       const previousUser = state.memberName || state.role || "unknown";
       logActivity("Logout", previousUser);
       if (state.token) {
@@ -3600,7 +4158,8 @@
       state.memberName = null;
       document.getElementById("dashboardPage").classList.add("hidden");
       document.getElementById("loginPage").classList.remove("hidden");
-      document.getElementById("loginPassword").value = "";
+      closeLoginPrompt();
+      clearLoginPasswordField();
     }
 
     function copySummary() {
@@ -3657,9 +4216,13 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
     }
 
     function bindLogin() {
+      document.getElementById("openLoginPromptBtn").addEventListener("click", openLoginPrompt);
       document.getElementById("loginBtn").addEventListener("click", handleLogin);
       document.getElementById("loginPassword").addEventListener("keydown", (e) => {
         if (e.key === "Enter") handleLogin();
+      });
+      document.getElementById("loginPromptBackdrop").addEventListener("click", (e) => {
+        if (e.target.id === "loginPromptBackdrop") closeLoginPrompt();
       });
     }
 
@@ -3709,6 +4272,7 @@ Seller Payment: ${state.stats.totalSellerPayment}`;
     setupCardClicks();
     bindHistoryClicks();
     bindLogin();
+    clearLoginPasswordField();
     startCodeBackground();
     loadRatesFromLocal();
     loadResetBaselinesFromLocal();
